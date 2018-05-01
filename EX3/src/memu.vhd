@@ -29,7 +29,7 @@ architecture rtl of memu is
     constant WORD : natural := 4*BYTE;
  
     signal WA, WB : std_logic_vector(BYTE-1 downto 0); 
-    signal DA, DB, DC, DD : std_logic_vecotr(BYTE-1 downto 0);
+    signal DA, DB, DC, DD : std_logic_vector(BYTE-1 downto 0);
     signal DAs, DBs, DCs, DDs : std_logic;
 
 begin  -- rtl
@@ -39,7 +39,7 @@ begin  -- rtl
     begin
 
         WA <= W(7 downto 0);
-        WB <= W(15 downto 9);
+        WB <= W(15 downto 8);
         
         DA <= D(7 downto 0);
         DB <= D(15 downto 8);

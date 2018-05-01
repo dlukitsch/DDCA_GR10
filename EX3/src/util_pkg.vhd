@@ -3,14 +3,14 @@
 ------------------------------------------------------
 
 library ieee;
-use iee.std_logic_1164.all;
-use iee.numeric_std.all;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package util_pkg is
 
     function padding(size : natural; val  : std_logic) return std_logic_vector;
 
-end package
+end package;
 
 package body util_pkg is
     
