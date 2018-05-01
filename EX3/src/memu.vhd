@@ -19,37 +19,38 @@ entity memu is
 		M    : out mem_out_type;
 		R    : out std_logic_vector(DATA_WIDTH-1 downto 0);
 		XL   : out std_logic;
-		XS   : out std_logic);
+		XS   : out std_logic
+            );
 end memu;
 
 architecture rtl of memu is
 
-    constant BYTE : natural := 8;
-    constant HWORD : natural := 2*BYTE;
-    constant WORD : natural := 4*BYTE;
+    constant HWORD_WIDTH : natural := 2*BYTE_WIDTH;
  
-    signal WA, WB : std_logic_vector(BYTE-1 downto 0); 
-    signal DA, DB, DC, DD : std_logic_vector(BYTE-1 downto 0);
+    signal WA, WB : std_logic_vector(BYTE_WIDTH-1 downto 0); 
+    signal DA, DB, DC, DD : std_logic_vector(BYTE_WIDTH-1 downto 0);
     signal DAs, DBs, DCs, DDs : std_logic;
 
 begin  -- rtl
     
     output : process(all)
-
     begin
 
-        WA <= W(7 downto 0);
-        WB <= W(15 downto 8);
+        --lowest to bytes of W
+        WA <= W(BYTE_WIDTH-1 downto 0);
+        WB <= W(2*BYTE_WIDTH-1 downto BYTE_WIDTH);
         
-        DA <= D(7 downto 0);
-        DB <= D(15 downto 8);
-        DC <= D(23 downto 16);
-        DD <= D(31 downto 24);
+        --all bytes of D, lowest to highest
+        DA <= D(BYTE_WIDTH-1 downto 0);
+        DB <= D(2*BYTE_WIDTH-1 downto BYTE_WIDTH);
+        DC <= D(3*BYTE_WIDTH-1 downto 2*BYTE_WIDTH);
+        DD <= D(4*BYTE_WIDTH-1 downto 3*BYTE_WIDTH);
 
-        DAs <= D(7);
-        DBs <= D(15);
-        DCs <= D(23);
-        DDs <= D(31);
+        --sign bits
+        DAs <= D(BYTE_WIDTH-1);
+        DBs <= D(2*BYTE_WIDTH-1);
+        DCs <= D(3*BYTE_WIDTH-1);
+        DDs <= D(4*BYTE_WIDTH-1);
 
         M.address <= A;
         M.rd <= op.memread;
@@ -75,20 +76,20 @@ begin  -- rtl
                 case A(1 downto 0) is
                     when "00" =>
                         M.byteena <= "1000";
-                        M.wrdata  <= WA & padding(3*BYTE, '0');
-                        R         <= padding(3*BYTE, DDs) & DD;
+                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, DDs) & DD;
                     when "01" =>
                         M.byteena <= "0100";
-                        M.wrdata  <= padding(BYTE, '0') & WA & padding(2*BYTE, '0');
-                        R         <= padding(3*BYTE, DCs) & DC;
+                        M.wrdata  <= padding(BYTE_WIDTH, '0') & WA & padding(2*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, DCs) & DC;
                     when "10" =>
                         M.byteena <= "0010";
-                        M.wrdata  <= padding(2*BYTE, '0') & WA & padding(BYTE, '0');
-                        R         <= padding(3*BYTE, DBs) & DB;
+                        M.wrdata  <= padding(2*BYTE_WIDTH, '0') & WA & padding(BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, DBs) & DB;
                     when "11" =>
                         M.byteena <= "0001";
-                        M.wrdata  <= WA & padding(3*BYTE, '0');
-                        R         <= padding(3*BYTE, DAs) & DA;
+                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, DAs) & DA;
                     when others =>
                 end case;
 
@@ -96,20 +97,20 @@ begin  -- rtl
                 case A(1 downto 0) is
                     when "00" =>
                         M.byteena <= "1000";
-                        M.wrdata  <= WA & padding(3*BYTE, '0');
-                        R         <= padding(3*BYTE, '0') & DD;
+                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, '0') & DD;
                     when "01" =>
                         M.byteena <= "0100";
-                        M.wrdata  <= padding(BYTE, '0') & WA & padding(2*BYTE, '0');
-                        R         <= padding(3*BYTE, '0') & DC;
+                        M.wrdata  <= padding(BYTE_WIDTH, '0') & WA & padding(2*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, '0') & DC;
                     when "10" =>
                         M.byteena <= "0010";
-                        M.wrdata  <= padding(2*BYTE, '0') & WA & padding(BYTE, '0');
-                        R         <= padding(3*BYTE, '0') & DB;
+                        M.wrdata  <= padding(2*BYTE_WIDTH, '0') & WA & padding(BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, '0') & DB;
                     when "11" =>
                         M.byteena <= "0001";
-                        M.wrdata  <= WA & padding(3*BYTE, '0');
-                        R         <= padding(3*BYTE, '0') & DA;
+                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        R         <= padding(3*BYTE_WIDTH, '0') & DA;
                     when others =>
                 end case;
 
@@ -117,22 +118,22 @@ begin  -- rtl
                 case A(1 downto 0) is
                     when "00" =>
                         M.byteena <= "1100";
-                        M.wrdata  <= WB & WA & padding(HWORD, '0');
-                        R         <= padding(HWORD, DDs) & DD & DC;
+                        M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
+                        R         <= padding(HWORD_WIDTH, DDs) & DD & DC;
                     when "01" =>
                         M.byteena <= "1100";
-                        M.wrdata  <= WB & WA & padding(HWORD, '0');
-                        R         <= padding(HWORD, DDs) & DD & DC;
+                        M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
+                        R         <= padding(HWORD_WIDTH, DDs) & DD & DC;
                         XL        <= op.memread;
                         XS        <= op.memwrite;
                     when "10" =>
                         M.byteena <= "0011";
-                        M.wrdata  <= padding(HWORD, '0') & WB & WA;
-                        R         <= padding(HWORD, DBs) & DB & DA;
+                        M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
+                        R         <= padding(HWORD_WIDTH, DBs) & DB & DA;
                     when "11" =>
                         M.byteena <= "0011";
-                        M.wrdata  <= padding(HWORD, '0') & WB & WA;
-                        R         <= padding(HWORD, DBs) & DB & DA;
+                        M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
+                        R         <= padding(HWORD_WIDTH, DBs) & DB & DA;
                         XL        <= op.memread;
                         XS        <= op.memwrite;
                     when others =>
@@ -142,22 +143,22 @@ begin  -- rtl
                 case A(1 downto 0) is
                     when "00" =>
                         M.byteena <= "1100";
-                        M.wrdata  <= WB & WA & padding(HWORD, '0');
-                        R         <= padding(HWORD, '0') & DD & DC;
+                        M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
+                        R         <= padding(HWORD_WIDTH, '0') & DD & DC;
                     when "01" =>
                         M.byteena <= "1100";
-                        M.wrdata  <= WB & WA & padding(HWORD, '0');
-                        R         <= padding(HWORD, '0') & DD & DC;
+                        M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
+                        R         <= padding(HWORD_WIDTH, '0') & DD & DC;
                         XL        <= op.memread;
                         XS        <= op.memwrite;
                     when "10" =>
                         M.byteena <= "0011";
-                        M.wrdata  <= padding(HWORD, '0') & WB & WA;
-                        R         <= padding(HWORD, '0') & DB & DA;
+                        M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
+                        R         <= padding(HWORD_WIDTH, '0') & DB & DA;
                     when "11" =>
                         M.byteena <= "0011";
-                        M.wrdata  <= padding(HWORD, '0') & WB & WA;
-                        R         <= padding(HWORD, '0') & DB & DA;
+                        M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
+                        R         <= padding(HWORD_WIDTH, '0') & DB & DA;
                         XL        <= op.memread;
                         XS        <= op.memwrite;
                     when others =>
