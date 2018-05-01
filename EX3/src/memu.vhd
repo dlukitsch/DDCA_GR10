@@ -8,6 +8,7 @@ use ieee.numeric_std.all;
 
 use work.core_pack.all;
 use work.op_pack.all;
+use work.util_pkg.all;
 
 entity memu is
 	port (
@@ -30,17 +31,6 @@ architecture rtl of memu is
     signal WA, WB : std_logic_vector(BYTE-1 downto 0); 
     signal DA, DB, DC, DD : std_logic_vecotr(BYTE-1 downto 0);
     signal DAs, DBs, DCs, DDs : std_logic;
-
-    function padding(size : natural;
-                     val  : std_logic)
-                    return std_logic_vector is
-        variable padding : std_logic_vector(size-1 downto 0);
-    begin
-        for i in size-1 downto 0 loop
-            padding(i) := val;
-        end loop;
-        return padding;
-    end function;
 
 begin  -- rtl
     
