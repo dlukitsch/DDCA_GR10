@@ -36,7 +36,7 @@ begin  -- rtl
     output : process(all)
     begin
 
-        --lowest to bytes of W
+        --lowest two bytes of W
         WA <= W(BYTE_WIDTH-1 downto 0);
         WB <= W(2*BYTE_WIDTH-1 downto BYTE_WIDTH);
         
@@ -62,12 +62,12 @@ begin  -- rtl
         XL <= '0';
         XS <= '0';
 
-        if A = padding(ADDR_WIDTH, '0') then
-            XL <= op.memread;
+        if op.memread = '1' and A = padding(ADDR_WIDTH, '0') then
+            XL <= '1';
         end if;
 
         if op.memwrite = '1' and A = padding(ADDR_WIDTH, '0') then
-            XS <= op.memwrite;
+            XS <= '1';
         end if;
         
         case op.memtype is
@@ -88,7 +88,7 @@ begin  -- rtl
                         R         <= padding(3*BYTE_WIDTH, DBs) & DB;
                     when "11" =>
                         M.byteena <= "0001";
-                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        M.wrdata  <= padding(3*BYTE_WIDTH, '0') & WA;
                         R         <= padding(3*BYTE_WIDTH, DAs) & DA;
                     when others =>
                 end case;
@@ -109,7 +109,7 @@ begin  -- rtl
                         R         <= padding(3*BYTE_WIDTH, '0') & DB;
                     when "11" =>
                         M.byteena <= "0001";
-                        M.wrdata  <= WA & padding(3*BYTE_WIDTH, '0');
+                        M.wrdata  <= padding(3*BYTE_WIDTH, '0') & WA;
                         R         <= padding(3*BYTE_WIDTH, '0') & DA;
                     when others =>
                 end case;
@@ -124,8 +124,12 @@ begin  -- rtl
                         M.byteena <= "1100";
                         M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
                         R         <= padding(HWORD_WIDTH, DDs) & DD & DC;
-                        XL        <= op.memread;
-                        XS        <= op.memwrite;
+                        if op.memread = '1' then
+                            XL <= '1';
+                        end if;
+                        if op.memwrite = '1' then
+                            XS <= '1';
+                        end if;
                     when "10" =>
                         M.byteena <= "0011";
                         M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
@@ -134,8 +138,12 @@ begin  -- rtl
                         M.byteena <= "0011";
                         M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
                         R         <= padding(HWORD_WIDTH, DBs) & DB & DA;
-                        XL        <= op.memread;
-                        XS        <= op.memwrite;
+                        if op.memread = '1' then
+                            XL <= '1';
+                        end if;
+                        if op.memwrite = '1' then
+                            XS <= '1';
+                        end if;
                     when others =>
                 end case;
             
@@ -149,8 +157,12 @@ begin  -- rtl
                         M.byteena <= "1100";
                         M.wrdata  <= WB & WA & padding(HWORD_WIDTH, '0');
                         R         <= padding(HWORD_WIDTH, '0') & DD & DC;
-                        XL        <= op.memread;
-                        XS        <= op.memwrite;
+                        if op.memread = '1' then
+                            XL <= '1';
+                        end if;
+                        if op.memwrite = '1' then
+                            XS <= '1';
+                        end if;
                     when "10" =>
                         M.byteena <= "0011";
                         M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
@@ -159,8 +171,12 @@ begin  -- rtl
                         M.byteena <= "0011";
                         M.wrdata  <= padding(HWORD_WIDTH, '0') & WB & WA;
                         R         <= padding(HWORD_WIDTH, '0') & DB & DA;
-                        XL        <= op.memread;
-                        XS        <= op.memwrite;
+                        if op.memread = '1' then
+                            XL <= '1';
+                        end if;
+                        if op.memwrite = '1' then
+                            XS <= '1';
+                        end if;
                     when others =>
                 end case;
 
@@ -171,13 +187,23 @@ begin  -- rtl
                 if A(1 downto 0) = "01" or
                    A(1 downto 0) = "10" or
                    A(1 downto 0) = "11" then
-                    XL        <= op.memread;
-                    XS        <= op.memwrite;
+                    if op.memread = '1' then
+                         XL <= '1';
+                    end if;
+                    if op.memwrite = '1' then
+                         XS <= '1';
+                    end if;
                 end if;
 
             when others =>
                     
         end case;
+
+        --disable memory operations if exceptions occur
+        if XL = '1' or XS = '1' then
+            M.rd <= '0';
+            M.wr <= '0';
+        end if;
 
     end process;
 
