@@ -25,11 +25,11 @@ architecture bench of alu_tb_fileio is
 			);
 	end component;
 
-	signal op : alu_op_type;
-	signal A, B, R : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal op : alu_op_type := ALU_NOP;
+	signal A, B, R : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 	signal Z ,V : std_logic_vector(7 downto 0) := "00000000";
-	signal new_data : std_logic;
-	signal clk : std_logic;
+	signal new_data : std_logic := '0';
+	signal clk : std_logic := '0';
 	
 	constant CLK_PERIOD : time := 20 ns;
 	
