@@ -59,7 +59,7 @@ begin
 		variable l : line;
 	begin
 		-- open input file
-		file_open(fstatus, input_file,"testdata/input.txt", READ_MODE);
+		file_open(fstatus, input_file,"../testdata/input.txt", READ_MODE);
 		
 		A <= (others=>'0');
 		B <= (others=>'0');
@@ -91,10 +91,10 @@ begin
 		-- file io related variables
 		variable fstatus: file_open_status;
 		variable l : line;
-		
+		variable cnt : integer := 0;
 		variable Z_char, V_char : character;
 	begin 
-		file_open(fstatus, output_ref_file,"testdata/output.txt", READ_MODE);
+		file_open(fstatus, output_ref_file,"../testdata/output.txt", READ_MODE);
 		
 		loop
 			loop
@@ -106,6 +106,7 @@ begin
 			--read next reference character from file
 			while not endfile(output_ref_file) loop
 				readline(output_ref_file, l);
+				cnt := cnt + 1;
 				if( l(1) = '#' ) then --ignore comment lines 
 					next;
 				end if;
@@ -119,9 +120,9 @@ begin
 			--report "READ: " & character_temp severity note;
 			Z_char := l(10);
 			V_char := l(12);
-			assert (R = hex_to_slv(l(1 to 8), 32)) report "R calculated " & slv_to_hex(R) & " expected " & l(1 to 8) severity error;
-			assert (Z = std_logic_vector(unsigned(ascii_char_to_slv(z_char)) - 48)) report "Z calculated " & slv_to_hex(Z(3 downto 0)) & " expected " & z_char severity error;
-			assert (V = std_logic_vector(unsigned(ascii_char_to_slv(v_char)) - 48)) report "V calculated " & slv_to_hex(V(3 downto 0)) & " expected " & v_char severity error;
+			assert (R = hex_to_slv(l(1 to 8), 32)) report "Line " & integer'image(cnt) & ": R calculated " & slv_to_hex(R) & " expected " & l(1 to 8) severity error;
+			assert (Z = std_logic_vector(unsigned(ascii_char_to_slv(z_char)) - 48)) report "Line " & integer'image(cnt) & ": Z calculated " & slv_to_hex(Z(3 downto 0)) & " expected " & z_char severity error;
+			assert (V = std_logic_vector(unsigned(ascii_char_to_slv(v_char)) - 48)) report "Line " & integer'image(cnt) & ": V calculated " & slv_to_hex(V(3 downto 0)) & " expected " & v_char severity error;
 
 		end loop;
 		
