@@ -44,7 +44,7 @@ begin  -- rtl
 			when ALU_SRL =>
 				R_temp := std_logic_vector(unsigned(B) srl to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
 			when ALU_SRA =>
-				R_temp := std_logic_vector(unsigned(B) sra to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
+				R_temp := to_stdlogicvector(to_bitvector(B) sra to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
 			when ALU_ADD =>
 				R_temp := std_logic_vector(signed(A) + signed(B));
 			when ALU_SUB =>
