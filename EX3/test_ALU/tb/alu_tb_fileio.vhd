@@ -59,7 +59,7 @@ begin
 		variable l : line;
 	begin
 		-- open input file
-		file_open(fstatus, input_file,"../testdata/input.txt", READ_MODE);
+		file_open(fstatus, input_file,"testdata/input.txt", READ_MODE);
 		
 		A <= (others=>'0');
 		B <= (others=>'0');
@@ -94,7 +94,7 @@ begin
 		variable cnt : integer := 0;
 		variable Z_char, V_char : character;
 	begin 
-		file_open(fstatus, output_ref_file,"../testdata/output.txt", READ_MODE);
+		file_open(fstatus, output_ref_file,"testdata/output.txt", READ_MODE);
 		
 		loop
 			loop
