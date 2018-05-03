@@ -25,11 +25,11 @@ architecture bench of alu_tb_fileio is
 			);
 	end component;
 
-	signal op : alu_op_type;
-	signal A, B, R : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal op : alu_op_type := ALU_NOP;
+	signal A, B, R : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 	signal Z ,V : std_logic_vector(7 downto 0) := "00000000";
-	signal new_data : std_logic;
-	signal clk : std_logic;
+	signal new_data : std_logic := '0';
+	signal clk : std_logic := '0';
 	
 	constant CLK_PERIOD : time := 20 ns;
 	
@@ -59,7 +59,7 @@ begin
 		variable l : line;
 	begin
 		-- open input file
-		file_open(fstatus, input_file,"../testdata/input.txt", READ_MODE);
+		file_open(fstatus, input_file,"testdata/input.txt", READ_MODE);
 		
 		A <= (others=>'0');
 		B <= (others=>'0');
@@ -94,7 +94,7 @@ begin
 		variable cnt : integer := 0;
 		variable Z_char, V_char : character;
 	begin 
-		file_open(fstatus, output_ref_file,"../testdata/output.txt", READ_MODE);
+		file_open(fstatus, output_ref_file,"testdata/output.txt", READ_MODE);
 		
 		loop
 			loop

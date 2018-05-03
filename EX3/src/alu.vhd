@@ -20,46 +20,47 @@ architecture rtl of alu is
 begin  -- rtl
 
 	process(op, A, B)
+	variable R_temp : std_logic_vector(DATA_WIDTH-1 downto 0);
 	begin
 		case op is
 			when ALU_NOP =>
-				R <= A;
+				R_temp := A;
 			when ALU_SLT =>
 				if signed(A) < signed(B) then
-					R <= (others => '0');
-					R(0) <= '1'; 
+					R_temp := (others => '0');
+					R_temp(0) := '1'; 
 				else
-					R <= (others => '0');
+					R_temp := (others => '0');
 				end if;
 			when ALU_SLTU =>
 				if unsigned(A) < unsigned(B) then
-					R <= (others => '0');
-					R(0) <= '1'; 
+					R_temp := (others => '0');
+					R_temp(0) := '1'; 
 				else
-					R <= (others => '0');
+					R_temp := (others => '0');
 				end if;
 			when ALU_SLL =>
-				R <= std_logic_vector(unsigned(B) sll to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
+				R_temp := std_logic_vector(unsigned(B) sll to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
 			when ALU_SRL =>
-				R <= std_logic_vector(unsigned(B) srl to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
+				R_temp := std_logic_vector(unsigned(B) srl to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
 			when ALU_SRA =>
-				R <= std_logic_vector(unsigned(B) sra to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
+				R_temp := to_stdlogicvector(to_bitvector(B) sra to_integer(unsigned(A(DATA_WIDTH_BITS-1 downto 0))));
 			when ALU_ADD =>
-				R <= std_logic_vector(signed(A) + signed(B));
+				R_temp := std_logic_vector(signed(A) + signed(B));
 			when ALU_SUB =>
-				R <= std_logic_vector(signed(A) - signed(B));
+				R_temp := std_logic_vector(signed(A) - signed(B));
 			when ALU_AND =>
-				R <= A and B; 
+				R_temp := A and B; 
 			when ALU_OR =>
-				R <= A or B;
+				R_temp := A or B;
 			when ALU_XOR =>
-				R <= A xor B;
+				R_temp := A xor B;
 			when ALU_NOR =>
-				R <= not (A or B);
+				R_temp := not (A or B);
 			when ALU_LUI =>
-				R <= std_logic_vector(unsigned(B) sll 16);
+				R_temp := std_logic_vector(unsigned(B) sll 16);
 			when others =>
-				R <= A;
+				R_temp := A;
 		end case;
 		
 		if (op = ALU_SUB and A = B) or (op /= ALU_SUB and unsigned(A) = 0) then
@@ -68,17 +69,18 @@ begin  -- rtl
 			Z <= '0';
 		end if;
 		
-		if (op = ALU_ADD and signed(A) >= 0 and signed(B) >= 0 and signed(R) < 0) then
+		if (op = ALU_ADD and signed(A) >= 0 and signed(B) >= 0 and signed(R_temp) < 0) then
 			V <= '1';
-		elsif (op = ALU_ADD and signed(A) < 0 and signed(B) < 0 and signed(R) >= 0) then
+		elsif (op = ALU_ADD and signed(A) < 0 and signed(B) < 0 and signed(R_temp) >= 0) then
 			V <= '1';
-		elsif (op = ALU_SUB and signed(A) >= 0 and signed(B) < 0 and signed(R) < 0) then
+		elsif (op = ALU_SUB and signed(A) >= 0 and signed(B) < 0 and signed(R_temp) < 0) then
 			v <= '1';
-		elsif (op = ALU_SUB and signed(A) < 0 and signed(B) >= 0 and signed(R) >= 0) then
+		elsif (op = ALU_SUB and signed(A) < 0 and signed(B) >= 0 and signed(R_temp) >= 0) then
 			v <= '1';
 		else
 			V <= '0';
 		end if;
+		R <= R_temp;
 	end process;
 
 end rtl;
