@@ -49,9 +49,9 @@ begin
     clk_gen : process
     begin
         clk <= '1';
-        wait for CLK_PERIOD;
+        wait for CLK_PERIOD/2;
         clk <= '0';
-        wait for CLK_PERIOD;
+        wait for CLK_PERIOD/2;
     end process;
 
     test : process

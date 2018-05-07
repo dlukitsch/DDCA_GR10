@@ -15,6 +15,13 @@ compile_fetch:
 
 sim_fetch: compile_fetch
 	$(VSIM) -c -do "do scripts/sim_fetch.do;run 1 us;quit -f" 
+
+compile_mem: 
+	$(VSIM) -c -do "do scripts/compile_mem.do;quit -f"
+
+compile_wb: 
+	$(VSIM) -c -do "do scripts/compile_wb.do;quit -f"
+
 clean:
 	rm -fr work
 	rm -f transcript

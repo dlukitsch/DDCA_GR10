@@ -22,7 +22,6 @@ end fetch;
 
 architecture rtl of fetch is
 
-
     component imem_altera is
         port
         (
