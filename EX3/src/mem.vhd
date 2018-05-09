@@ -69,25 +69,35 @@ architecture rtl of mem is
         wbop       : wb_op_type;
     end record;
 
+    type INTERNAL_REGISTERS is record
+        mem_op     : mem_op_type;
+        jmp_op     : jmp_op_type; 
+        wrdata     : std_logic_vector(DATA_WIDTH-1 downto 0);
+        zero       : std_logic;
+        neg        : std_logic;
+        mem_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
+    end record;
+    
     signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS;
-    signal memu_op : mem_op_type;
- 
+    signal int_reg, int_reg_next : INTERNAL_REGISTERS;
+    signal memu_op : mem_op_type; 
+
 begin -- rtl
 
     jump_unit : jmpu
     port map (
-        op => jmp_op,
-        N => neg,
-        Z => zero,
+        op => int_reg.jmp_op,
+        N => int_reg.neg,
+        Z => int_reg.zero,
         J => pcsrc 
     );
 
     memory_unit : memu
     port map (
         op => memu_op,
-        A => aluresult_in(ADDR_WIDTH-1 downto 0),
-        W => wrdata,
-        D => mem_data,
+        A => pt_reg.aluresult(ADDR_WIDTH-1 downto 0),
+        W => int_reg.wrdata,
+        D => int_reg.mem_data,
         M => mem_out,
         R => memresult,
         XL => exc_load,
@@ -104,8 +114,17 @@ begin -- rtl
             pt_reg.new_pc <= (others => '0');
             pt_reg.wbop.memtoreg <= '0';
             pt_reg.wbop.regwrite <= '0';
+            int_reg.mem_op.memread <= '0';
+            int_reg.mem_op.memwrite <= '0';
+            int_reg.mem_op.memtype <= MEM_W;
+            int_reg.jmp_op <= JMP_NOP;
+            int_reg.wrdata <= (others => '0');
+            int_reg.zero <= '0';
+            int_reg.neg <= '0';
+            int_reg.mem_data <= (others => '0');
         elsif rising_edge(clk) and stall = '0' then
             pt_reg <= pt_reg_next;
+            int_reg <= int_reg_next;
         end if;
 
     end process;
@@ -119,6 +138,13 @@ begin -- rtl
         pt_reg_next.new_pc      <= new_pc_in;
         pt_reg_next.wbop        <= wbop_in;
 
+        int_reg_next.mem_op <= mem_op;
+        int_reg_next.jmp_op <= jmp_op;
+        int_reg_next.wrdata <= wrdata;
+        int_reg_next.zero <= zero;
+        int_reg_next.neg <= neg;
+        int_reg_next.mem_data <= mem_data;
+        
         pc_out          <= pt_reg.pc;
         rd_out          <= pt_reg.rd;
         aluresult_out   <= pt_reg.aluresult;
@@ -137,9 +163,9 @@ begin -- rtl
         if stall = '1' then
             memu_op.memread <= '0';
             memu_op.memwrite <= '0';
-            memu_op.memtype <= mem_op.memtype;
+            memu_op.memtype <= int_reg.mem_op.memtype;
         else
-            memu_op <= mem_op;
+            memu_op <= int_reg.mem_op;
         end if;
 
     end process;

@@ -16,7 +16,7 @@ entity wb is
 		clk, reset : in  std_logic;
 		stall      : in  std_logic;
 		flush      : in  std_logic;
-		op	   	   : in  wb_op_type;
+		op	   : in  wb_op_type;
 		rd_in      : in  std_logic_vector(REG_BITS-1 downto 0);
 		aluresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		memresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -29,9 +29,10 @@ end wb;
 architecture rtl of wb is
 
     type WB_REGISTERS is record
-        result   : std_logic_vector(DATA_WIDTH-1 downto 0);
-        regwrite : std_logic;
-        rd       : std_logic_vector(REG_BITS-1 downto 0); 
+        op        : wb_op_type;
+        aluresult : std_logic_vector(DATA_WIDTH-1 downto 0);
+        memresult : std_logic_vector(DATA_WIDTH-1 downto 0);
+        rd        : std_logic_vector(REG_BITS-1 downto 0); 
     end record;
 
     signal wb_reg, wb_reg_next : WB_REGISTERS;
@@ -42,8 +43,10 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            wb_reg.result <= (others => '0');
-            wb_reg.regwrite <= '0';
+            wb_reg.op.memtoreg <= '0';
+            wb_reg.op.regwrite <= '0';
+            wb_reg.aluresult <= (others => '0');
+            wb_reg.memresult <= (others => '0');
             wb_reg.rd <= (others => '0');
         elsif rising_edge(clk) and stall = '0' then
             wb_reg <= wb_reg_next;
@@ -54,23 +57,25 @@ begin  -- rtl
     output : process(all)
     begin
 
-        wb_reg_next.regwrite <= op.regwrite;
+        wb_reg_next.op <= op;
+        wb_reg_next.aluresult <= aluresult;
+        wb_reg_next.memresult <= memresult;
         wb_reg_next.rd <= rd_in;
 
-        if op.memtoreg = '1' then
-            wb_reg_next.result <= memresult;
+        if wb_reg.op.memtoreg = '1' then
+            result <= wb_reg.memresult;
         else
-            wb_reg_next.result <= aluresult;
+            result <= wb_reg.aluresult;
         end if; 
 
         if flush = '1' then
-            wb_reg_next.result <= (others => '0');
-            wb_reg_next.regwrite <= '0';
-            wb_reg_next.rd <= (others => '0');
+            wb_reg_next.op.memtoreg <= '0';
+            wb_reg_next.op.regwrite <= '0';
+            wb_reg_next.aluresult <= (others => '0');
+            wb_reg_next.memresult <= (others => '0');
         end if;
 
-        result <= wb_reg.result;
-        regwrite <= wb_reg.regwrite;
+        regwrite <= wb_reg.op.regwrite;
         rd_out <= wb_reg.rd;
 
     end process; 
