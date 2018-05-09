@@ -8,7 +8,6 @@ use ieee.numeric_std.all;
 
 use work.core_pack.all;
 use work.op_pack.all;
-use work.util_pkg.all;
 
 entity memu is
 	port (
@@ -24,6 +23,18 @@ entity memu is
 end memu;
 
 architecture rtl of memu is
+
+	function padding(size : natural;
+    		         val  : std_logic)
+        			 return std_logic_vector is
+        variable padding : std_logic_vector(size-1 downto 0);
+    begin
+        for i in size-1 downto 0 loop
+            padding(i) := val;
+        end loop;
+        return padding;
+    end function;
+
 
     constant HWORD_WIDTH : natural := 2*BYTE_WIDTH;
  
