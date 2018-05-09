@@ -56,8 +56,10 @@ begin  -- rtl
             int_reg.pcsrc   <= '0';
             int_reg.pc_ext  <= (others => '0');
             int_reg.pc      <= (others => '0');
-        elsif rising_edge(clk) and stall = '0' then
-            int_reg <= int_reg_next;
+        elsif rising_edge(clk) then
+            if stall = '0' then
+                int_reg <= int_reg_next;
+            end if;
         end if;
 
     end process;

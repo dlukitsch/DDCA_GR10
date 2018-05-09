@@ -1,0 +1,225 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/dr_zed/ownCloud/Uni/SS18/DDCA_GR10/EX3/test
+Pcore_pack
+Z1 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z2 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+Z3 w1525103355
+R0
+8../src/core_pack.vhd
+F../src/core_pack.vhd
+l0
+L4
+VR3BbFK@f?F8mkJ6afR_T>2
+!s100 XldbVHfAb2=ggIZl_Plk20
+Z4 OV;C;10.5b;63
+32
+Z5 !s110 1525882040
+!i10b 1
+Z6 !s108 1525882040.000000
+!s90 -work|work|../src/core_pack.vhd|
+!s107 ../src/core_pack.vhd|
+!i113 1
+Z7 o-work work
+Z8 tExplicit 1 CvgOpt 0
+Efetch
+Z9 w1525881921
+Z10 DPx4 work 9 core_pack 0 22 R3BbFK@f?F8mkJ6afR_T>2
+Z11 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+R1
+R2
+R0
+Z12 8../src/fetch.vhd
+Z13 F../src/fetch.vhd
+l0
+L11
+V1712SoK[g;3HMIV0bX<WT2
+!s100 E3[cX9Jk^9zA@Skb>`33d3
+R4
+33
+Z14 !s110 1525881933
+!i10b 1
+Z15 !s108 1525881933.000000
+Z16 !s90 -work|work|-2008|../src/fetch.vhd|
+Z17 !s107 ../src/fetch.vhd|
+!i113 1
+Z18 o-work work -2008
+R8
+Artl
+R10
+R11
+R1
+R2
+DEx4 work 5 fetch 0 22 1712SoK[g;3HMIV0bX<WT2
+l43
+L23
+VEo2b]5dL=RY?hQiFC<Gi;0
+!s100 Oo5Nd3<W27dkeEEMGhBl<3
+R4
+33
+R14
+!i10b 1
+R15
+R16
+R17
+!i113 1
+R18
+R8
+Eimem_altera
+R3
+R1
+R2
+R0
+Z19 8../src/imem_altera.vhd
+Z20 F../src/imem_altera.vhd
+l0
+L42
+V1fLW2]QWBLRZB[iHjje>Y0
+!s100 7JhRM^VR_38=8R>aF:fS?2
+R4
+32
+R14
+!i10b 1
+R15
+Z21 !s90 -work|work|../src/imem_altera.vhd|
+Z22 !s107 ../src/imem_altera.vhd|
+!i113 1
+R7
+R8
+Asyn
+R1
+R2
+DEx4 work 11 imem_altera 0 22 1fLW2]QWBLRZB[iHjje>Y0
+l81
+L52
+V@H>_8^16?15^Oj93:kagK2
+!s100 IE=MZbzmXgjAR^5TkNhN30
+R4
+32
+R14
+!i10b 1
+R15
+R21
+R22
+!i113 1
+R7
+R8
+Emem
+Z23 w1525881978
+Z24 DPx4 work 7 op_pack 0 22 L@>JTz=T[J8:EB:<8O>JF1
+R10
+R11
+R1
+R2
+R0
+Z25 8../src/mem.vhd
+Z26 F../src/mem.vhd
+l0
+L13
+VS?`z>6NWFTeFRIMC`[]cY1
+!s100 ?UgWh;Tlb:I4[NdUZ`]270
+R4
+33
+Z27 !s110 1525881983
+!i10b 1
+Z28 !s108 1525881983.000000
+Z29 !s90 -work|work|-2008|../src/mem.vhd|
+Z30 !s107 ../src/mem.vhd|
+!i113 1
+R18
+R8
+Artl
+R24
+R10
+R11
+R1
+R2
+DEx4 work 3 mem 0 22 S?`z>6NWFTeFRIMC`[]cY1
+l85
+L42
+V`DfdHT2<K0HE[1V=1`J5j0
+!s100 ggA>32;jlgST?e6D^Dk?V3
+R4
+33
+R27
+!i10b 1
+R28
+R29
+R30
+!i113 1
+R18
+R8
+Pop_pack
+R10
+R1
+R2
+R3
+R0
+8../src/op_pack.vhd
+F../src/op_pack.vhd
+l0
+L6
+VL@>JTz=T[J8:EB:<8O>JF1
+!s100 VKm68BK>?1nP:Vhmn]?^V0
+R4
+32
+R5
+!i10b 1
+R6
+!s90 -work|work|../src/op_pack.vhd|
+!s107 ../src/op_pack.vhd|
+!i113 1
+R7
+R8
+Ewb
+Z31 w1525882035
+R24
+R10
+R11
+R1
+R2
+R0
+Z32 8../src/wb.vhd
+Z33 F../src/wb.vhd
+l0
+L13
+VZ85C45kkHShbMag98eaPo3
+!s100 TGe@RgNHCD40e8L0gKzbe2
+R4
+33
+R5
+!i10b 1
+R6
+Z34 !s90 -work|work|-2008|../src/wb.vhd|
+Z35 !s107 ../src/wb.vhd|
+!i113 1
+R18
+R8
+Artl
+R24
+R10
+R11
+R1
+R2
+DEx4 work 2 wb 0 22 Z85C45kkHShbMag98eaPo3
+l40
+L29
+V0f7_`aJ6_WA@Jfl8lC2Jc0
+!s100 0VA@H:H?h=h>gki^AG4W[1
+R4
+33
+R5
+!i10b 1
+R6
+R34
+R35
+!i113 1
+R18
+R8

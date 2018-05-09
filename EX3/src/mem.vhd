@@ -122,9 +122,11 @@ begin -- rtl
             int_reg.zero <= '0';
             int_reg.neg <= '0';
             int_reg.mem_data <= (others => '0');
-        elsif rising_edge(clk) and stall = '0' then
-            pt_reg <= pt_reg_next;
-            int_reg <= int_reg_next;
+        elsif rising_edge(clk) then
+            if stall = '0' then
+                pt_reg <= pt_reg_next;
+                int_reg <= int_reg_next;
+            end if;
         end if;
 
     end process;

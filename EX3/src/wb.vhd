@@ -48,8 +48,10 @@ begin  -- rtl
             wb_reg.aluresult <= (others => '0');
             wb_reg.memresult <= (others => '0');
             wb_reg.rd <= (others => '0');
-        elsif rising_edge(clk) and stall = '0' then
-            wb_reg <= wb_reg_next;
+        elsif rising_edge(clk) then
+            if stall = '0' then
+                wb_reg <= wb_reg_next;
+            end if;
         end if;
 
     end process;
