@@ -29,15 +29,22 @@ architecture rtl of fetch is
             clock           : IN STD_LOGIC  := '1';
             q               : OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
         );
+
     end component;
 
-    signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
+    type INTERNAL_REGISTERS is record
+        pcsrc  : std_logic;
+        pc_ext : std_logic_vector(PC_WIDTH-1 downto 0);
+        pc     : std_logic_vector(PC_WIDTH-1 downto 0);
+    end record;
+
+    signal int_reg, int_reg_next : INTERNAL_REGISTERS;
 
 begin  -- rtl
 
     imem : imem_altera
     port map (
-        address => pc_next(PC_WIDTH-1 downto 2),
+        address => int_reg_next.pc(PC_WIDTH-1 downto 2),
         clock => clk,
         q => instr
     );
@@ -46,27 +53,30 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            pc <= (others => '0');
+            int_reg.pcsrc   <= '0';
+            int_reg.pc_ext  <= (others => '0');
+            int_reg.pc      <= (others => '0');
         elsif rising_edge(clk) and stall = '0' then
-            pc <= pc_next;
+            int_reg <= int_reg_next;
         end if;
 
     end process;
 
     output : process(all)
     begin
+      
+        int_reg_next.pcsrc  <= pcsrc;  
+        int_reg_next.pc_ext <= pc_in;
+        pc_out <= int_reg.pc;
         
-        pc_next <= pc;
-        pc_out <= pc_next;
-        
-        if pcsrc = '1' then
-            pc_next <= pc_in;
+        if int_reg.pcsrc = '1' then
+            int_reg_next.pc <= int_reg.pc_ext;
         else
-            pc_next <= std_logic_vector(unsigned(pc) + 4);
+            int_reg_next.pc <= std_logic_vector(unsigned(int_reg.pc) + 4);
         end if;
         
         if reset = '0' then
-            pc_next <= (others => '0');
+            int_reg_next.pc <= (others => '0');
         end if;
 
     end process; 
