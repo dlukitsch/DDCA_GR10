@@ -2,12 +2,18 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.core_pack.all;
+use work.op_pack.all;
+
 package tb_util_pkg is
 	function hex_to_slv(hex : string; min_width : integer) return std_logic_vector;
 	
 	function slv_to_hex(slv : in std_logic_vector) return string;
 	
 	function is_hex_digit(c : character) return boolean;
+	
+	function hex_to_op(hex : string) return alu_op_type;
+	
 end package;
 
 package body tb_util_pkg is
@@ -84,6 +90,27 @@ package body tb_util_pkg is
 			ret_value((i+1)*4-1 downto i*4) := temp;
 		end loop;
 		return ret_value;
+	end function;
+	
+	function hex_to_op(hex : string) return alu_op_type is
+	begin
+		case hex(hex'high) is
+			when '0' => return ALU_NOP;
+			when '1' => return ALU_LUI;
+			when '2' => return ALU_SLT;	
+			when '3' => return ALU_SLTU;
+			when '4' => return ALU_SLL;
+			when '5' => return ALU_SRL;
+			when '6' => return ALU_SRA;
+			when '7' => return ALU_ADD;
+			when '8' => return ALU_SUB;
+			when '9' => return ALU_AND;
+			when 'A' => return ALU_OR;
+			when 'B' => return ALU_XOR;
+			when 'C' => return ALU_NOR;
+			when others => report "Conversion Error: char: " & hex severity error;
+		end case;
+		return ALU_NOP;
 	end function;
 
 end package body;

@@ -24,10 +24,10 @@ end memu;
 
 architecture rtl of memu is
 
-	function padding(size : natural;
-    		         val  : std_logic)
-        			 return std_logic_vector is
-        variable padding : std_logic_vector(size-1 downto 0);
+    function padding(size : natural;
+    		     val  : std_logic)
+        	    return std_logic_vector is
+    variable padding : std_logic_vector(size-1 downto 0);
     begin
         for i in size-1 downto 0 loop
             padding(i) := val;
