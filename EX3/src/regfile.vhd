@@ -22,7 +22,8 @@ architecture rtl of regfile is
 TYPE reg_type is ARRAY(0 to (2**REG_BITS)-1) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
 signal registers : reg_type := (others => (others=> '0'));
 
-signal int_rdaddr1, int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+signal int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+signal int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 signal zero : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
 begin  -- rtl
