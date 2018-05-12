@@ -3,36 +3,41 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.core_pack.all;
+use work.op_pack.all;
 use work.tb_util_pkg.all;
 
 library std; -- for Printing
 use std.textio.all;
 use ieee.std_logic_textio.all;
 
-entity fetch_tb is
+entity wb_tb is
 end entity;
 
-architecture bench of fetch_tb is
+architecture bench of wb_tb is
 
-	component fetch is
+	component wb is
 	    port (
                 clk, reset : in  std_logic;
                 stall      : in  std_logic;
-                pcsrc      : in  std_logic;
-                pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
-                pc_out     : out std_logic_vector(PC_WIDTH-1 downto 0);
-                instr      : out std_logic_vector(INSTR_WIDTH-1 downto 0)
+                flush      : in  std_logic;
+                op         : in  wb_op_type;
+                rd_in      : in  std_logic_vector(REG_BITS-1 downto 0);
+                aluresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                memresult  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                rd_out     : out std_logic_vector(REG_BITS-1 downto 0);
+                result     : out std_logic_vector(DATA_WIDTH-1 downto 0);
+                regwrite   : out std_logic
             );
-	end component;
+        end component;
 
 	constant CLK_PERIOD : time := 20 ns;	
         
-        signal clk, reset, stall, pcsrc : std_logic;
-        signal pc_in, pc_out : std_logic_vector(PC_WIDTH-1 downto 0);
-        signal instr : std_logic_vector(INSTR_WIDTH-1 downto 0);
+        signal clk, reset, stall, flush, regwrite : std_logic;
+        signal rd_in, rd_out : std_logic_vector(REG_BITS-1 downto 0);
+        signal aluresult, memresult, result : std_logic_vector(DATA_WIDTH-1 downto 0);
+        signal op : wb_op_type; 
 
 	file input_file : text;
-	file output_file : text;
 	
 	function ascii_char_to_slv(c : character) return std_logic_vector is
 	begin
@@ -50,15 +55,19 @@ architecture bench of fetch_tb is
             return sl;
         end function;
 begin
-	UUT : fetch
+	UUT : wb
 	port map (
             clk => clk,
             reset => reset,
             stall => stall,
-            pcsrc => pcsrc,
-            pc_in => pc_in,
-            pc_out => pc_out,
-            instr => instr 
+            flush => flush,
+            op => op,
+            rd_in => rd_in,
+            aluresult => aluresult,
+            memresult => memresult,
+            rd_out => rd_out,
+            result => result,
+            regwrite => regwrite
         );
 
 	stimulus : process
@@ -67,34 +76,41 @@ begin
 		variable fstatus: file_open_status;
 		variable inline : line;
 
-                variable pc_in_tmp : std_logic_vector(15 downto 0);
+                variable rd_in_tmp : std_logic_vector(7 downto 0);
 	begin
 		-- open input file
-		file_open(fstatus, input_file,"testdata/input_fetch.txt", READ_MODE);	
+		file_open(fstatus, input_file,"testdata/input_wb.txt", READ_MODE);	
 
                 reset <= '0';
                 stall <= '0';
-                pcsrc <= '0';
-                pc_in <= (others => '0');	
+                flush <= '0';
+                rd_in <= (others => '0');
+                aluresult <= (others => '0');
+                memresult <= (others => '0');	
                 wait for CLK_PERIOD;
                 reset <= '1';
 	
-                report "pc_out: 0x" & slv_to_hex(pc_out) & " instr: 0x" & slv_to_hex(instr);
+                report "regwrite: " & std_logic'image(regwrite) & " rd_out: 0x" & slv_to_hex(rd_out) & " result: 0x" & slv_to_hex(result);
 		
                 while not endfile(input_file) loop
 			readline(input_file, inline); 
 			
 			
 			if( inline(1) = '#' ) then --ignore comment lines 
-				next;
+				report "COMMENT: " & inline(1 to inline'high);
+                                next;
 			end if;
 			stall <= char_to_sl(inline(1));
-			pcsrc <= char_to_sl(inline(3));
-                        pc_in_tmp := hex_to_slv(inline(5 to 8), 16);
-                        pc_in <= pc_in_tmp(13 downto 0);
+			flush <= char_to_sl(inline(3));
+                        op.memtoreg <= char_to_sl(inline(5));
+                        op.regwrite <= char_to_sl(inline(7));
+                        rd_in_tmp := hex_to_slv(inline(9 to 10), 8);
+                        rd_in <= rd_in_tmp(4 downto 0);
+                        aluresult <= hex_to_slv(inline(12 to 19), 32);
+                        memresult <= hex_to_slv(inline(21 to 28), 32);
                         wait for CLK_PERIOD;
-                        report "stall: " & inline(1) & " pcsrc: " & inline(3) & " pc_in: " & inline(5 to 8); 
-                        report "pc_out: 0x" & slv_to_hex(pc_out) & " instr: 0x" & slv_to_hex(instr);
+                        report "stall: " & inline(1) & " flush: " & inline(3) & " op.memtoreg: " & inline(5) & " op.regwrite: " & inline(7) & " rd_in: " & inline(9 to 10) & " aluresult: " & inline(12 to 19) & " memresult: " & inline(21 to 28); 
+                        report "regwrite: " & std_logic'image(regwrite) & " rd_out: 0x" & slv_to_hex(rd_out) & " result: 0x" & slv_to_hex(result);
 		end loop;
 	
                 file_close(input_file);

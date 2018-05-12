@@ -9,25 +9,42 @@ library std; -- for Printing
 use std.textio.all;
 use ieee.std_logic_textio.all;
 
-entity fetch_tb is
+entity mem_tb is
 end entity;
 
-architecture bench of fetch_tb is
+architecture bench of mem_tb is
 
-	component fetch is
-	    port (
-                clk, reset : in  std_logic;
-                stall      : in  std_logic;
-                pcsrc      : in  std_logic;
-                pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
-                pc_out     : out std_logic_vector(PC_WIDTH-1 downto 0);
-                instr      : out std_logic_vector(INSTR_WIDTH-1 downto 0)
+	component mem is
+            port (
+                clk, reset    : in  std_logic;
+                stall         : in  std_logic;
+                flush         : in  std_logic;
+                mem_op        : in  mem_op_type;
+                jmp_op        : in  jmp_op_type;
+                pc_in         : in  std_logic_vector(PC_WIDTH-1 downto 0);
+                rd_in         : in  std_logic_vector(REG_BITS-1 downto 0);
+                aluresult_in  : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                wrdata        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                zero, neg     : in  std_logic;
+                new_pc_in     : in  std_logic_vector(PC_WIDTH-1 downto 0);
+                pc_out        : out std_logic_vector(PC_WIDTH-1 downto 0);
+                pcsrc         : out std_logic;
+                rd_out        : out std_logic_vector(REG_BITS-1 downto 0);
+                aluresult_out : out std_logic_vector(DATA_WIDTH-1 downto 0);
+                memresult     : out std_logic_vector(DATA_WIDTH-1 downto 0);
+                new_pc_out    : out std_logic_vector(PC_WIDTH-1 downto 0);
+                wbop_in       : in  wb_op_type;
+                wbop_out      : out wb_op_type;
+                mem_out       : out mem_out_type;
+                mem_data      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                exc_load      : out std_logic;
+                exc_store     : out std_logic
             );
 	end component;
-
-	constant CLK_PERIOD : time := 20 ns;	
+	
+        constant CLK_PERIOD : time := 20 ns;	
         
-        signal clk, reset, stall, pcsrc : std_logic;
+        signal clk, reset, stall, flush : std_logic;
         signal pc_in, pc_out : std_logic_vector(PC_WIDTH-1 downto 0);
         signal instr : std_logic_vector(INSTR_WIDTH-1 downto 0);
 
@@ -50,7 +67,7 @@ architecture bench of fetch_tb is
             return sl;
         end function;
 begin
-	UUT : fetch
+	UUT : mem
 	port map (
             clk => clk,
             reset => reset,
@@ -74,7 +91,7 @@ begin
 
                 reset <= '0';
                 stall <= '0';
-                pcsrc <= '0';
+                flush <= '0';
                 pc_in <= (others => '0');	
                 wait for CLK_PERIOD;
                 reset <= '1';
