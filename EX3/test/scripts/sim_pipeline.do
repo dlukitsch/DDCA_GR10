@@ -7,3 +7,5 @@ add wave -format logic /pipeline_tb/clk
 add wave -format logic /pipeline_tb/reset
 add wave -format logic /pipeline_tb/mem_out
 
+run 1 us
+

@@ -46,7 +46,8 @@ begin
         mem_in.rddata <= (others => '0');
         reset <= '0';
         wait for CLK_PERIOD;
-        reset <= '1';   
+        reset <= '1'; 
+        wait;  
     end process;
 
     generate_clk : process

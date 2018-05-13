@@ -32,7 +32,7 @@ compile_pipeline:
 	$(VSIM) -c -do "do scripts/compile_pipeline.do;quit -f"
 
 sim_pipeline: compile_pipeline
-	$(VSIM) -c -do "do scripts/sim_pipeline.do;run 1 us" 
+	$(VSIM) -do "do scripts/sim_pipeline.do" 
 
 clean:
 	rm -fr work
