@@ -1,4 +1,4 @@
-PROJECT=asmtest
+PROJECT=test
 
 PREFIX=/usr/mips
 
@@ -14,6 +14,9 @@ all: lib conf
 conf: ${PROJECT}.imem.mif ${PROJECT}.dmem.mif
 	cp ${PROJECT}.imem.mif ../src/imem.mif
 	cp ${PROJECT}.dmem.mif ../src/dmem.mif
+
+test.elf: test.o	
+	${LD} -o $@ $^
 
 helloworld.elf: helloworld.o
 	${LD} -o $@ crt0.o $^ -L. -lc
