@@ -48,18 +48,23 @@ architecture rtl of exec is
 	signal exec_op : exec_op_type;
 	signal exec_rd, exec_rs, exec_rt : std_logic_vector(REG_BITS-1 downto 0);
 
-	type EXEC_TYPE is (MEM_OP, ALU_OP, COP_OP, NO_OP);
+	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
 	signal state: EXEC_TYPE := NO_OP;
+
+	signal aluop : alu_op_type;
+	signal alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal alu_B : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal alu_Z : std_logic;
+	signal alu_V : std_logic;
 
 begin  -- rtl
 	
-	sync : process
+	sync : process(clk)
 	begin
-		if reset = '0' then
+		if reset = '0' or flush = '1' then
 			exec_op <= EXEC_NOP;
-
-		elsif flush = '0' then
-			exec_op <= EXEC_NOP; 
+			state <= NO_OP;
 
 		elsif rising_edge(clk) then
 
@@ -71,7 +76,7 @@ begin  -- rtl
 
 				if op.cop0 = '1' then
 					state <= COP_OP;
-				else if then
+				else 
 					state <= ALU_OP;
 				end if;
 			end if;
@@ -83,7 +88,7 @@ begin  -- rtl
 	rd <= exec_rd;
 	rt <= exec_rt;
 
-	--pass throuch signals for assignment 4
+	--pass signals for assignment 4
 	pc_out <= pc_in;
 	memop_out <= memop_in;
 	jmpop_out <= jmpop_in;
@@ -92,7 +97,7 @@ begin  -- rtl
 	--instant of ALU-Unit
 	alu_inst : alu
 	port map(
-		op => alu_op,
+		op => aluop,
 		A => alu_A,
 		B => alu_B,
 		R => alu_R,
@@ -100,18 +105,62 @@ begin  -- rtl
 		V => alu_V
 	);
 
-	state_machine : process
+	state_machine : process(exec_op)
 	begin
 		case state is
 			when NO_OP =>
-
-			when MEM_OP =>
+				aluresult <= (others => '0');
+				wrdata <= (others => '0');
+				neg <= '0';
+				zero <= '0';
 
 			when ALU_OP =>
-				alu_op <= exec_op.alu_op;
+				aluop <= exec_op.aluop;
 				aluresult <= alu_R;
 				neg <= alu_R(DATA_WIDTH-1);
 				zero <= alu_Z;
+
+				if exec_op.ovf = '1' and alu_V = '1' then
+					exc_ovf <= '1';
+				else
+					exc_ovf <= '0';
+				end if;
+
+				if exec_op.branch = '1' then
+					alu_A <= exec_op.readdata1;
+					alu_B <= exec_op.readdata2;
+					new_pc <= std_logic_vector(signed(pc_in) + signed(exec_op.imm(PC_WIDTH-1 downto 0)));
+
+					if exec_op.regdst = '1' then
+						wrdata <= exec_op.readdata2;
+					end if;
+
+				elsif exec_op.link = '1' then
+					alu_A <= exec_op.readdata1;
+					alu_B <= (others => '0');
+
+					if exec_op.regdst = '1' then
+						wrdata <= exec_op.readdata2;
+					else
+						wrdata <= (others => '0');
+					end if;
+				else
+					if exec_op.regdst = '1' then
+						wrdata <= alu_R;
+					end if;
+					
+					if exec_op.useimm = '1' then
+						alu_A <= exec_op.readdata1;
+						alu_B <= exec_op.imm;
+					elsif exec_op.useamt = '1' then
+						alu_A(REG_BITS-1 downto 0) <= exec_op.rs;
+						alu_B <= exec_op.readdata2;
+					else
+						alu_A <= exec_op.readdata1;
+						alu_B <= exec_op.readdata2;
+					end if;
+
+				end if;
 				
 			when COP_OP =>
 				aluresult <= cop0_rddata;
