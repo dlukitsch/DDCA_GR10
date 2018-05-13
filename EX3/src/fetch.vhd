@@ -66,10 +66,10 @@ begin  -- rtl
 
     output : process(all)
     begin
-      
+             
         int_reg_next.pcsrc  <= pcsrc;  
         int_reg_next.pc_ext <= pc_in;
-        pc_out <= int_reg.pc;
+        int_reg_next.pc     <= int_reg.pc;
         
         if int_reg.pcsrc = '1' then
             int_reg_next.pc <= int_reg.pc_ext;
@@ -77,8 +77,11 @@ begin  -- rtl
             int_reg_next.pc <= std_logic_vector(unsigned(int_reg.pc) + 4);
         end if;
         
+        pc_out <= int_reg_next.pc;
+
         if reset = '0' then
             int_reg_next.pc <= (others => '0');
+            pc_out <= "00"&x"004";
         end if;
 
     end process; 

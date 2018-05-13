@@ -88,12 +88,13 @@ begin
 			if( inline(1) = '#' ) then --ignore comment lines 
 				next;
 			end if;
-			stall <= char_to_sl(inline(1));
-			pcsrc <= char_to_sl(inline(3));
-                        pc_in_tmp := hex_to_slv(inline(5 to 8), 16);
+                        reset <= char_to_sl(inline(1));
+			stall <= char_to_sl(inline(3));
+			pcsrc <= char_to_sl(inline(5));
+                        pc_in_tmp := hex_to_slv(inline(7 to 10), 16);
                         pc_in <= pc_in_tmp(13 downto 0);
                         wait for CLK_PERIOD;
-                        report "stall: " & inline(1) & " pcsrc: " & inline(3) & " pc_in: " & inline(5 to 8); 
+                        report "reset: " & inline(1) & " stall: " & inline(3) & " pcsrc: " & inline(5) & " pc_in: " & inline(7 to 10); 
                         report "pc_out: 0x" & slv_to_hex(pc_out) & " instr: 0x" & slv_to_hex(instr);
 		end loop;
 	
