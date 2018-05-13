@@ -10,7 +10,6 @@ use work.core_pack.all;
 use work.op_pack.all;
 
 use work.tb_util_pkg.all;
-use work.util_pkg.all;
 
 entity memu_tb is
 end entity;
