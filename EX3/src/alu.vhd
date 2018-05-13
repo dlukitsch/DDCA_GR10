@@ -27,15 +27,13 @@ begin  -- rtl
 				R_temp := A;
 			when ALU_SLT =>
 				if signed(A) < signed(B) then
-					R_temp := (others => '0');
-					R_temp(0) := '1'; 
+					R_temp := (0 => '1', others => '0');
 				else
 					R_temp := (others => '0');
 				end if;
 			when ALU_SLTU =>
 				if unsigned(A) < unsigned(B) then
-					R_temp := (others => '0');
-					R_temp(0) := '1'; 
+					R_temp := (0 => '1', others => '0'); 
 				else
 					R_temp := (others => '0');
 				end if;
