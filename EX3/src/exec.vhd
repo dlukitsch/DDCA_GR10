@@ -32,7 +32,7 @@ entity exec is
 		wb_result        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		exc_ovf          : out std_logic);
 
-end exec;aluresult
+end exec;
 
 architecture rtl of exec is
 	component alu is
