@@ -46,7 +46,9 @@ architecture rtl of exec is
 	end component;
 
 	signal exec_op : exec_op_type;
-	signal exec_rd, exec_rs, exec_rt : std_logic_vector(REG_BITS-1 downto 0);
+	signal exec_rd : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal exec_rs : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal exec_rt : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
 	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
 	signal state: EXEC_TYPE := NO_OP;
@@ -105,7 +107,7 @@ begin  -- rtl
 		V => alu_V
 	);
 
-	state_machine : process(exec_op)
+	state_machine : process(all)
 	begin
 		case state is
 			when NO_OP =>
@@ -118,8 +120,8 @@ begin  -- rtl
 			when ALU_OP =>
 				aluop <= exec_op.aluop;
 				aluresult <= alu_R;
-				neg <= alu_R(DATA_WIDTH-1);
 				zero <= alu_Z;
+				neg <= alu_R(DATA_WIDTH-1);
 				wrdata <= (others => '0');
 				new_pc <= (others => '0');
 
