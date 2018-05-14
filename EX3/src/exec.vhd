@@ -32,7 +32,7 @@ entity exec is
 		wb_result        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		exc_ovf          : out std_logic);
 
-end exec;
+end exec;aluresult
 
 architecture rtl of exec is
 	component alu is
@@ -113,12 +113,15 @@ begin  -- rtl
 				wrdata <= (others => '0');
 				neg <= '0';
 				zero <= '0';
+				new_pc <= (others => '0');
 
 			when ALU_OP =>
 				aluop <= exec_op.aluop;
 				aluresult <= alu_R;
 				neg <= alu_R(DATA_WIDTH-1);
 				zero <= alu_Z;
+				wrdata <= (others => '0');
+				new_pc <= (others => '0');
 
 				if exec_op.ovf = '1' and alu_V = '1' then
 					exc_ovf <= '1';
@@ -141,8 +144,6 @@ begin  -- rtl
 
 					if exec_op.regdst = '1' then
 						wrdata <= exec_op.readdata2;
-					else
-						wrdata <= (others => '0');
 					end if;
 				else
 					if exec_op.regdst = '1' then
