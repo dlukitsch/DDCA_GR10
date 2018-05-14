@@ -20,12 +20,14 @@ end regfile;
 architecture rtl of regfile is
  
 TYPE reg_type is ARRAY(0 to (2**REG_BITS)-1) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
-signal registers : reg_type := (others => ( others => '0'));
+signal registers : reg_type;
 
 begin  -- rtl
 
 	process(clk)
 	begin
+		registers(0) <= (others => '0');
+		
 		if reset = '0' then
 			rddata1 <= (others => '0');
 			rddata2 <= (others => '0');
