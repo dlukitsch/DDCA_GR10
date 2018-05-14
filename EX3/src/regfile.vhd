@@ -35,10 +35,10 @@ begin  -- rtl
 			if regwrite = '1' and to_integer(unsigned(wraddr))/=0 then
 			  registers(to_integer(unsigned(wraddr))) <= wrdata;
 			end if;
-			if rdaddr1 = wraddr then
+			if rdaddr1 = wraddr and regwrite = '1' then
 			  rddata1 <= wrdata;
 			  rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			elsif rdaddr2 = wraddr then
+			elsif rdaddr2 = wraddr and regwrite = '1' then
 			  rddata1 <= registers(to_integer(unsigned(rdaddr1)));
 			  rddata2 <= wrdata;
 			else
