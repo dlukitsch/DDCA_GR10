@@ -75,6 +75,7 @@ begin  -- rtl
             wb_reg_next.op.regwrite <= '0';
             wb_reg_next.aluresult <= (others => '0');
             wb_reg_next.memresult <= (others => '0');
+            wb_reg_next.rd <= (others => '0');
         end if;
 
         regwrite <= wb_reg.op.regwrite;
