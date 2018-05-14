@@ -1,4 +1,4 @@
-PROJECT=test
+PROJECT=minimal
 
 PREFIX=/usr/mips
 
@@ -14,6 +14,18 @@ all: lib conf
 conf: ${PROJECT}.imem.mif ${PROJECT}.dmem.mif
 	cp ${PROJECT}.imem.mif ../src/imem.mif
 	cp ${PROJECT}.dmem.mif ../src/dmem.mif
+
+minimal.elf: minimal.o	
+	${LD} -o $@ $^
+
+arith.elf: arith.o	
+	${LD} -o $@ $^
+
+memory.elf: memory.o	
+	${LD} -o $@ $^
+
+jump.elf: jump.o	
+	${LD} -o $@ $^
 
 test.elf: test.o	
 	${LD} -o $@ $^
