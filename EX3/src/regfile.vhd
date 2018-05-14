@@ -24,27 +24,30 @@ signal registers : reg_type;
 
 begin  -- rtl
 
-	registers(0) <= (others => '0');
-
 	process(clk)
 	begin
+		registers(0) <= (others => '0');
+		
 		if reset = '0' then
 			rddata1 <= (others => '0');
 			rddata2 <= (others => '0');
 		elsif rising_edge(clk) and stall = '0' then
 			if regwrite = '1' and to_integer(unsigned(wraddr))/=0 then
 			  registers(to_integer(unsigned(wraddr))) <= wrdata;
-			end if;
-			if rdaddr1 = wraddr and regwrite = '1' then
-			  rddata1 <= wrdata;
-			  rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			elsif rdaddr2 = wraddr and regwrite = '1' then
+			  if rdaddr1 = wraddr then
+			    rddata1 <= wrdata;
+			    rddata2 <= registers(to_integer(unsigned(rdaddr2)));
+			  elsif rdaddr2 = wraddr then
+			    rddata1 <= registers(to_integer(unsigned(rdaddr1)));
+			    rddata2 <= wrdata;
+			  else
+			    rddata1 <= registers(to_integer(unsigned(rdaddr1)));
+			    rddata2 <= registers(to_integer(unsigned(rdaddr2)));
+			  end if;
+			 else
 			  rddata1 <= registers(to_integer(unsigned(rdaddr1)));
-			  rddata2 <= wrdata;
-			else
-			  rddata1 <= registers(to_integer(unsigned(rdaddr1)));
 			  rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			end if;
+			end if;  
 		end if;
 	end process;
 end rtl;
