@@ -112,11 +112,8 @@ begin -- rtl
             pt_reg.rd <= (others => '0');
             pt_reg.aluresult <= (others => '0');
             pt_reg.new_pc <= (others => '0');
-            pt_reg.wbop.memtoreg <= '0';
-            pt_reg.wbop.regwrite <= '0';
-            int_reg.mem_op.memread <= '0';
-            int_reg.mem_op.memwrite <= '0';
-            int_reg.mem_op.memtype <= MEM_W;
+            pt_reg.wbop <= WB_NOP;
+            int_reg.mem_op <= MEM_OP;
             int_reg.jmp_op <= JMP_NOP;
             int_reg.wrdata <= (others => '0');
             int_reg.zero <= '0';
@@ -158,8 +155,7 @@ begin -- rtl
             pt_reg_next.rd <= (others => '0');
             pt_reg_next.aluresult <= (others => '0');
             pt_reg_next.new_pc <= (others => '0');
-            pt_reg_next.wbop.memtoreg <= '0';
-            pt_reg_next.wbop.regwrite <= '0';
+            pt_reg_next.wbop <= WB_NOP;
         end if;
 
         --ensure that no memory operation is asserted on stall

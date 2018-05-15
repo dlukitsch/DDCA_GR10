@@ -43,8 +43,7 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            wb_reg.op.memtoreg <= '0';
-            wb_reg.op.regwrite <= '0';
+            wb_reg.op <= WB_NOP;
             wb_reg.aluresult <= (others => '0');
             wb_reg.memresult <= (others => '0');
             wb_reg.rd <= (others => '0');
@@ -72,8 +71,7 @@ begin  -- rtl
         end if; 
 
         if flush = '1' then
-            wb_reg_next.op.memtoreg <= '0';
-            wb_reg_next.op.regwrite <= '0';
+            wb_reg_next.op <= WB_NOP;
             wb_reg_next.aluresult <= (others => '0');
             wb_reg_next.memresult <= (others => '0');
             wb_reg_next.rd <= (others => '0');
