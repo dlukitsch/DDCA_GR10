@@ -67,6 +67,10 @@ begin  -- rtl
 		if reset = '0' or flush = '1' then
 			exec_op <= EXEC_NOP;
 			state <= NO_OP;
+			pc_out <= (others => '0');
+			memop_out <= MEM_NOP;
+			jmpop_out <= JMP_NOP;
+			wbop_out <= WB_NOP;
 
 		elsif rising_edge(clk) then
 
