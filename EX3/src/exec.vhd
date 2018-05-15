@@ -58,8 +58,6 @@ architecture rtl of exec is
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;
 
-	signal result : std_logic_vector(DATA_WIDTH-1 downto 0);
-
 begin  -- rtl
 	
 	sync : process(all)
@@ -109,6 +107,7 @@ begin  -- rtl
 
 	state_machine : process(all)
 	variable temp : std_logic_vector(PC_WIDTH downto 0) := (others => '0');
+	variable result : std_logic_vector(DATA_WIDTH-1 downto 0):= (others => '0');
 	begin
 		aluresult <= (others => '0');
 		wrdata <= (others => '0');
@@ -119,7 +118,7 @@ begin  -- rtl
 		exc_ovf <= '0';
 		alu_A <= (others => '0');
 		alu_B <= (others => '0');
-		result <= (others => '0');
+		result := (others => '0');
 		temp := (others => '0');
 		
 		case state is
@@ -140,15 +139,15 @@ begin  -- rtl
 					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
 					if exec_op.regdst = '1' then
-						result(PC_WIDTH-1 downto 0) <= pc_in;
+						result(PC_WIDTH-1 downto 0) := exec_pc;
 					end if;
 
 				elsif exec_op.link = '1' then
 					new_pc <= exec_op.readdata1(13 downto 0);
 
 					if exec_op.regdst = '1' then
-						alu_A(13 downto 0) <= pc_in;
-						result <= alu_R;
+						alu_A(13 downto 0) <= exec_pc;
+						result := alu_R;
 					end if;
 
 				else
@@ -160,7 +159,7 @@ begin  -- rtl
 						alu_B <= exec_op.readdata2;
 					end if;
 
-					result <= alu_R;
+					result := alu_R;
 
 					if exec_op.regdst = '0' then
 						wrdata <= alu_R;
