@@ -127,7 +127,7 @@ begin  -- rtl
 			case opcode is
 				when "000000" =>
 					case func is
-						when "000000" =>
+						when "000000" => --SLL
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SLL;
 							exec_op.readdata2 <= rddata2;
@@ -137,7 +137,7 @@ begin  -- rtl
 							exec_op.useamt <= '1';
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1'; 
-						when "000010" =>
+						when "000010" => --SRL
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRL;
 							exec_op.readdata2 <= rddata2;
@@ -147,7 +147,7 @@ begin  -- rtl
 							exec_op.useamt <= '1';
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "000011" =>
+						when "000011" => --SRA
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRA;
 							exec_op.readdata2 <= rddata2;
@@ -157,40 +157,40 @@ begin  -- rtl
 							exec_op.useamt <= '1';
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "000100" =>
+						when "000100" => --SLLV
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SLL;
-							exec_op.readdata1 <= rddata1;
+							exec_op.readdata1(4 downto 0) <= rddata1(4 downto 0);
 							exec_op.readdata2 <= rddata2;
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "000110" =>
+						when "000110" => --SRLV
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRL;
-							exec_op.readdata1 <= rddata1;
+							exec_op.readdata1 <= rddata1(4 downto 0);
 							exec_op.readdata2 <= rddata2;
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "000111" =>
+						when "000111" => --SRAV
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRA;
-							exec_op.readdata1 <= rddata1;
+							exec_op.readdata1 <= rddata1(4 downto 0);
 							exec_op.readdata2 <= rddata2;
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "001000" =>
+						when "001000" => --JR
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -199,7 +199,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.link <= '1';
 							jmp_op <= JMP_JMP;
-						when "001001" =>
+						when "001001" => --JALR
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -210,7 +210,7 @@ begin  -- rtl
 							exec_op.regdst <= '1';
 							jmp_op <= JMP_JMP;
 							wb_op.regwrite <= '1';
-						when "100000" =>
+						when "100000" => --ADD
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_ADD;
@@ -222,7 +222,7 @@ begin  -- rtl
 							exec_op.regdst <= '1';
 							exec_op.ovf <= '1';
 							wb_op.regwrite <= '1';
-						when "100001" =>
+						when "100001" => --ADDU
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_ADD;
@@ -233,7 +233,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "100010" =>
+						when "100010" => --SUB
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SUB;
@@ -245,7 +245,7 @@ begin  -- rtl
 							exec_op.regdst <= '1';
 							exec_op.ovf <= '1';
 							wb_op.regwrite <= '1';
-						when "100011" =>
+						when "100011" => --SUBU
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SUB;
@@ -256,7 +256,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "100100" =>
+						when "100100" => --AND
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_AND;
@@ -267,7 +267,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "100101" =>
+						when "100101" => --OR
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_OR;
@@ -278,7 +278,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "100110" =>
+						when "100110" => --XOR
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_XOR;
@@ -289,7 +289,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "100111" =>
+						when "100111" => --NOR
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_NOR;
@@ -300,7 +300,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "101010" =>
+						when "101010" => --SLT
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SLT;
@@ -311,7 +311,7 @@ begin  -- rtl
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							wb_op.regwrite <= '1';
-						when "101011" =>
+						when "101011" => --SLTU
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SLTU;
@@ -327,7 +327,7 @@ begin  -- rtl
 					end case;
 				when "000001" =>
 					case rd_i is
-						when "00000" =>  -- not sure because of the pc + 4 from fetch stage
+						when "00000" => --BLTZ -- not sure because of the pc + 4 from fetch stage
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -335,7 +335,7 @@ begin  -- rtl
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							jmp_op <= JMP_BLTZ;
-						when "00001" =>
+						when "00001" => --BGEZ
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -343,7 +343,7 @@ begin  -- rtl
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							jmp_op <= JMP_BGEZ;
-						when "10000" =>
+						when "10000" => --BLTZAL
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -355,7 +355,7 @@ begin  -- rtl
 							exec_op.regdst <= '1';
 							jmp_op <= JMP_BLTZ;
 							wb_op.regwrite <= '1';
-						when "10001" =>
+						when "10001" => --BGEZAL
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
@@ -370,12 +370,12 @@ begin  -- rtl
 						when others =>
 							exc_dec <= '1';
 					end case;
-				when "000010" =>
+				when "000010" => --J
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1(25 downto 0) <= address(23 downto 0) & "00";
 					exec_op.link <= '1';
 					jmp_op <= JMP_JMP;
-				when "000011" =>
+				when "000011" => --JAL
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1(25 downto 0) <= address(23 downto 0) & "00";
 					exec_op.link <= '1';
@@ -384,7 +384,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					jmp_op <= JMP_JMP;
 					wb_op.regwrite <= '1';
-				when "000100" =>
+				when "000100" => --BEQ
 					rdaddr1 <= rs;
 					rdaddr2 <= rd_i;
 					exec_op.aluop <= ALU_SUB;
@@ -394,7 +394,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BEQ;
-				when "000101" =>
+				when "000101" => --BNE
 					rdaddr1 <= rs;
 					rdaddr2 <= rd_i;
 					exec_op.aluop <= ALU_SUB;
@@ -404,7 +404,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BNE;
-				when "000110" =>
+				when "000110" => --BLEZ
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1 <= rddata1;
@@ -412,7 +412,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BLEZ;
-				when "000111" =>
+				when "000111" => --BGTZ
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1 <= rddata1;
@@ -420,7 +420,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BGTZ;
-				when "001000" =>
+				when "001000" => --ADDI
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -430,7 +430,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					exec_op.ovf <= '1';
 					wb_op.regwrite <= '1';
-				when "001001" =>
+				when "001001" => --ADDIU
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -439,7 +439,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001010" =>
+				when "001010" => --SLTI
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_SLT;
 					exec_op.readdata1 <= rddata1;
@@ -448,7 +448,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001011" =>
+				when "001011" => --SLTIU
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_SLTU;
 					exec_op.readdata1 <= rddata1;
@@ -457,7 +457,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001100" =>
+				when "001100" => --ANDI
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_AND;
 					exec_op.readdata1 <= rddata1;
@@ -466,7 +466,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001101" =>
+				when "001101" => --ORI
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_OR;
 					exec_op.readdata1 <= rddata1;
@@ -475,7 +475,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001110" =>
+				when "001110" => --XORI
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_XOR;
 					exec_op.readdata1 <= rddata1;
@@ -484,7 +484,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
-				when "001111" =>
+				when "001111" => --LUI
 					exec_op.aluop <= ALU_LUI;
 					exec_op.imm(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
@@ -493,12 +493,12 @@ begin  -- rtl
 					wb_op.regwrite <= '1';
 				when "010000" =>
 					case rs is  --not implemented yet --> all NOPs
-						when "00000" =>
-						when "00100" =>
+						when "00000" => --MFC0
+						when "00100" => --MTC0
 						when others =>
 							exc_dec <= '1';
 					end case;
-				when "100000" =>
+				when "100000" => --LB
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -510,7 +510,7 @@ begin  -- rtl
 					wb_op.memtoreg <= '1';
 					mem_op.memread <= '1';
 					mem_op.memtype <= MEM_B;
-				when "100001" =>
+				when "100001" => --LH
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -522,7 +522,7 @@ begin  -- rtl
 					wb_op.memtoreg <= '1';
 					mem_op.memread <= '1';
 					mem_op.memtype <= MEM_H;
-				when "100011" =>
+				when "100011" => --LW
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -534,7 +534,7 @@ begin  -- rtl
 					wb_op.memtoreg <= '1';
 					mem_op.memread <= '1';
 					mem_op.memtype <= MEM_W;
-				when "100100" =>
+				when "100100" => --LBU
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -546,7 +546,7 @@ begin  -- rtl
 					wb_op.memtoreg <= '1';
 					mem_op.memread <= '1';
 					mem_op.memtype <= MEM_BU;
-				when "100101" =>
+				when "100101" => --LHU
 					rdaddr1 <= rs;
 					exec_op.aluop <= ALU_ADD;
 					exec_op.readdata1 <= rddata1;
@@ -558,7 +558,7 @@ begin  -- rtl
 					wb_op.memtoreg <= '1';
 					mem_op.memread <= '1';
 					mem_op.memtype <= MEM_HU;
-				when "101000" =>
+				when "101000" => --SB
 					rdaddr1 <= rs;
 					rdaddr2 <= rd_i;
 					exec_op.aluop <= ALU_ADD;
@@ -568,7 +568,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					mem_op.memwrite <= '1';
 					mem_op.memtype <= MEM_B;
-				when "101001" =>
+				when "101001" => --SH
 					rdaddr1 <= rs;
 					rdaddr2 <= rd_i;
 					exec_op.aluop <= ALU_ADD;
@@ -578,7 +578,7 @@ begin  -- rtl
 					exec_op.useimm <= '1';
 					mem_op.memwrite <= '1';
 					mem_op.memtype <= MEM_H;
-				when "101011" =>
+				when "101011" => --SW
 					rdaddr1 <= rs;
 					rdaddr2 <= rd_i;
 					exec_op.aluop <= ALU_ADD;
