@@ -172,7 +172,7 @@ begin  -- rtl
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRL;
-							exec_op.readdata1 <= rddata1(4 downto 0);
+							exec_op.readdata1(4 downto 0) <= rddata1(4 downto 0);
 							exec_op.readdata2 <= rddata2;
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
@@ -183,7 +183,7 @@ begin  -- rtl
 							rdaddr1 <= rs;
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRA;
-							exec_op.readdata1 <= rddata1(4 downto 0);
+							exec_op.readdata1(4 downto 0) <= rddata1(4 downto 0);
 							exec_op.readdata2 <= rddata2;
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
