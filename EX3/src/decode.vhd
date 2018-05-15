@@ -88,8 +88,6 @@ begin  -- rtl
 	func <= instr(5 downto 0);
 	imm <= instr(15 downto 0);
 	address <= instr(25 downto 0);
-	
-	pc_out <= pc_in;
 
 	regfile_inst : regfile
 	port map (
@@ -115,6 +113,7 @@ begin  -- rtl
 			mem_op <= MEM_NOP;
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
+			pc_out <= (others => '0');
 			
 		elsif rising_edge(clk) and stall = '0' then
 			exec_op <= EXEC_NOP;
@@ -123,6 +122,7 @@ begin  -- rtl
 			mem_op <= MEM_NOP;
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
+			pc_out <= pc_in;
 
 			case opcode is
 				when "000000" =>
@@ -203,7 +203,6 @@ begin  -- rtl
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
-							exec_op.readdata2(13 downto 0) <= pc_in;  --store program counter in rd
 							exec_op.rs <= rs;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
@@ -347,7 +346,6 @@ begin  -- rtl
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
-							exec_op.readdata2(13 downto 0) <= pc_in; --store pc
 							exec_op.rd <= "11111"; --register 31 to store the pc to
 							shift_imm(imm, exec_op.imm);
 							exec_op.useimm <= '1';
@@ -359,7 +357,6 @@ begin  -- rtl
 							rdaddr1 <= rs;
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
-							exec_op.readdata2(13 downto 0) <= pc_in; --store pc
 							exec_op.rd <= "11111"; --register 31 to store the pc to
 							shift_imm(imm, exec_op.imm);
 							exec_op.useimm <= '1';
@@ -379,7 +376,6 @@ begin  -- rtl
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1(25 downto 0) <= address(23 downto 0) & "00";
 					exec_op.link <= '1';
-					exec_op.readdata2(13 downto 0) <= pc_in; --store pc
 					exec_op.rd <= "11111"; --register 31 to store the pc to
 					exec_op.regdst <= '1';
 					jmp_op <= JMP_JMP;
