@@ -49,6 +49,10 @@ architecture rtl of exec is
 	signal exec_rd : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	signal exec_rs : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	signal exec_rt : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal exec_pc : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
+	signal exec_mem : mem_op_type;
+	signal exec_wb : wb_op_type;
+	signal exec_jmp : jmp_op_type;
 
 	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
 	signal state: EXEC_TYPE := NO_OP;
@@ -59,6 +63,8 @@ architecture rtl of exec is
 	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;
+
+	signal result : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 begin  -- rtl
 	
@@ -81,8 +87,13 @@ begin  -- rtl
 				else 
 					state <= ALU_OP;
 				end if;
-			end if;
 
+				--pass signals for assignment 4
+				exec_pc <= pc_in;
+				exec_mem <= memop_in;
+				exec_jmp <= jmpop_in;
+				exec_wb <= wbop_in;
+			end if;
 		end if;
 	end process;
 
@@ -90,11 +101,10 @@ begin  -- rtl
 	rd <= exec_rd;
 	rt <= exec_rt;
 
-	--pass signals for assignment 4
-	pc_out <= pc_in;
-	memop_out <= memop_in;
-	jmpop_out <= jmpop_in;
-	wbop_out <= wbop_in;
+	pc_out <= exec_pc;
+	memop_out <= exec_mem;
+	wbop_out <= exec_wb;
+	jmpop_out <= exec_jmp;
 
 	--instant of ALU-Unit
 	alu_inst : alu
@@ -134,37 +144,37 @@ begin  -- rtl
 				if exec_op.branch = '1' then
 					alu_A <= exec_op.readdata1;
 					alu_B <= exec_op.readdata2;
-					new_pc <= std_logic_vector(signed(pc_in) + signed(exec_op.imm(PC_WIDTH-1 downto 0)));
+					new_pc <= std_logic_vector(signed(exec_pc) + signed(exec_op.imm(PC_WIDTH-1 downto 0)));
 
 					if exec_op.regdst = '1' then
-						wrdata <= exec_op.readdata2;
+						result <= exec_op.readdata2;
 					end if;
 
 				elsif exec_op.link = '1' then
-					alu_A <= exec_op.readdata1;
-					alu_B <= (others => '0');
+					new_pc <= exec_pc;
 
 					if exec_op.regdst = '1' then
-						wrdata <= exec_op.readdata2;
+						alu_A <= exec_op.readdata2;
+						result <= alu_R;
 					end if;
+
 				else
-					if exec_op.regdst = '1' then
-						wrdata <= alu_R;
-					end if;
-					
 					if exec_op.useimm = '1' then
 						alu_A <= exec_op.readdata1;
 						alu_B <= exec_op.imm;
-					elsif exec_op.useamt = '1' then
-						alu_A(REG_BITS-1 downto 0) <= exec_op.readdata1(REG_BITS-1 downto 0);
-						alu_B <= exec_op.readdata2;
 					else
 						alu_A <= exec_op.readdata1;
 						alu_B <= exec_op.readdata2;
 					end if;
+
+					result <= alu_R;
+
+					if exec_op.regdst = '0' then
+						wrdata <= alu_R;
+					end if;
 				end if;
 				
-				aluresult <= alu_R;
+				aluresult <= result;
 				zero <= alu_Z;
 				neg <= alu_R(DATA_WIDTH-1);
 				
