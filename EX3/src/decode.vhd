@@ -369,12 +369,12 @@ begin  -- rtl
 					end case;
 				when "000010" => --J
 					exec_op.aluop <= ALU_NOP;
-					exec_op.readdata1(25 downto 0) <= address(23 downto 0) & "00";
+					exec_op.readdata1(27 downto 0) <= address & "00";
 					exec_op.link <= '1';
 					jmp_op <= JMP_JMP;
 				when "000011" => --JAL
 					exec_op.aluop <= ALU_NOP;
-					exec_op.readdata1(25 downto 0) <= address(23 downto 0) & "00";
+					exec_op.readdata1(27 downto 0) <= address & "00";
 					exec_op.link <= '1';
 					exec_op.rd <= "11111"; --register 31 to store the pc to
 					exec_op.regdst <= '1';
