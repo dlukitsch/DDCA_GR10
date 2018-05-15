@@ -103,7 +103,7 @@ begin  -- rtl
 		rddata2 => rddata2
 	);
 	
-	process(clk)
+	process(all)
 	begin
 		if reset = '0' or flush = '1' then
 			-- insert NOPs
@@ -130,7 +130,7 @@ begin  -- rtl
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SLL;
 							exec_op.readdata2 <= rddata2;
-							exec_op.rs <= rs;
+							exec_op.readdata1(4 downto 0) <= shamt;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.useamt <= '1';
@@ -140,7 +140,7 @@ begin  -- rtl
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRL;
 							exec_op.readdata2 <= rddata2;
-							exec_op.rs <= rs;
+							exec_op.readdata1(4 downto 0) <= shamt;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.useamt <= '1';
@@ -150,7 +150,7 @@ begin  -- rtl
 							rdaddr2 <= rt;
 							exec_op.aluop <= ALU_SRA;
 							exec_op.readdata2 <= rddata2;
-							exec_op.rs <= rs;
+							exec_op.readdata1(4 downto 0) <= shamt;
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.useamt <= '1';

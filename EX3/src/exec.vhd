@@ -62,7 +62,7 @@ architecture rtl of exec is
 
 begin  -- rtl
 	
-	sync : process(clk)
+	sync : process(all)
 	begin
 		if reset = '0' or flush = '1' then
 			exec_op <= EXEC_NOP;
