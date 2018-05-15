@@ -207,6 +207,7 @@ begin  -- rtl
 							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
+							exec_op.link <= '1';
 							jmp_op <= JMP_JMP;
 							wb_op.regwrite <= '1';
 						when "100000" => --ADD

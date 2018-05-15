@@ -142,10 +142,10 @@ begin  -- rtl
 					end if;
 
 				elsif exec_op.link = '1' then
-					new_pc <= exec_pc;
+					new_pc <= exec_op.readdata1(13 downto 0);
 
 					if exec_op.regdst = '1' then
-						alu_A <= exec_op.readdata2;
+						alu_A(13 downto 0) <= pc_in;
 						result <= alu_R;
 					end if;
 
