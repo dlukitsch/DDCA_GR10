@@ -109,21 +109,21 @@ begin  -- rtl
 
 	state_machine : process(all)
 	begin
+		aluresult <= (others => '0');
+		wrdata <= (others => '0');
+		neg <= '0';
+		zero <= '0';
+		new_pc <= (others => '0');
+		aluop <= ALU_NOP;
+		exc_ovf <= '0';
+		alu_A <= (others => '0');
+		alu_B <= (others => '0');
+		
 		case state is
 			when NO_OP =>
-				aluresult <= (others => '0');
-				wrdata <= (others => '0');
-				neg <= '0';
-				zero <= '0';
-				new_pc <= (others => '0');
-
+				-- no operation use init values for nop
 			when ALU_OP =>
 				aluop <= exec_op.aluop;
-				aluresult <= alu_R;
-				zero <= alu_Z;
-				neg <= alu_R(DATA_WIDTH-1);
-				wrdata <= (others => '0');
-				new_pc <= (others => '0');
 
 				if exec_op.ovf = '1' and alu_V = '1' then
 					exc_ovf <= '1';
@@ -156,14 +156,17 @@ begin  -- rtl
 						alu_A <= exec_op.readdata1;
 						alu_B <= exec_op.imm;
 					elsif exec_op.useamt = '1' then
-						alu_A(REG_BITS-1 downto 0) <= exec_op.rs;
+						alu_A(REG_BITS-1 downto 0) <= exec_op.readdata1(REG_BITS-1 downto 0);
 						alu_B <= exec_op.readdata2;
 					else
 						alu_A <= exec_op.readdata1;
 						alu_B <= exec_op.readdata2;
 					end if;
-
 				end if;
+				
+				aluresult <= alu_R;
+				zero <= alu_Z;
+				neg <= alu_R(DATA_WIDTH-1);
 				
 			when COP_OP =>
 				aluresult <= cop0_rddata;
