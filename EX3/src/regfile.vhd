@@ -19,33 +19,47 @@ end regfile;
 
 architecture rtl of regfile is
  
-TYPE reg_type is ARRAY(0 to (2**REG_BITS)-1) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
-signal registers : reg_type := (others => ( others => '0'));
+TYPE reg_type is ARRAY((2**REG_BITS)-1 downto 0) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
+constant zero : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+constant zeroD : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 
 begin  -- rtl
 
-	process(clk)
+	process(all)
+	variable registers : reg_type := (others => (others => '0'));
+	variable int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	variable int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	begin
+
+		registers(0) := (others => '0');
+
 		if reset = '0' then
+			int_rdaddr1 := (others => '0');
+			int_rdaddr2 := (others => '0');
 			rddata1 <= (others => '0');
 			rddata2 <= (others => '0');
+
 		elsif rising_edge(clk) and stall = '0' then
-			if regwrite = '1' and to_integer(unsigned(wraddr))/=0 then
-			  registers(to_integer(unsigned(wraddr))) <= wrdata;
-			  if rdaddr1 = wraddr then
-			    rddata1 <= wrdata;
-			    rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			  elsif rdaddr2 = wraddr then
-			    rddata1 <= registers(to_integer(unsigned(rdaddr1)));
-			    rddata2 <= wrdata;
-			  else
-			    rddata1 <= registers(to_integer(unsigned(rdaddr1)));
-			    rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			  end if;
-			 else
-			  rddata1 <= registers(to_integer(unsigned(rdaddr1)));
-			  rddata2 <= registers(to_integer(unsigned(rdaddr2)));
+
+			if regwrite = '1' and wraddr /= zero then
+			  registers(to_integer(unsigned(wraddr))) := wrdata;
 			end if;  
+
+			int_rdaddr1 := rdaddr1;
+			int_rdaddr2 := rdaddr2;
+
+			if int_rdaddr1 /= zero then
+				rddata1 <= registers(to_integer(unsigned(int_rdaddr1)));
+			else
+				rddata1 <= (others => '0');
+			end if;
+
+			if int_rdaddr2 /= zero then
+				rddata2 <= registers(to_integer(unsigned(int_rdaddr2)));
+			else
+				rddata2 <= (others => '0');
+			end if;
+
 		end if;
 	end process;
 end rtl;
