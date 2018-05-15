@@ -114,6 +114,7 @@ begin  -- rtl
 		exc_ovf <= '0';
 		alu_A <= (others => '0');
 		alu_B <= (others => '0');
+		result <= (others => '0');
 		
 		case state is
 			when NO_OP =>

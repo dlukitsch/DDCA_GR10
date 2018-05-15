@@ -29,10 +29,9 @@ begin  -- rtl
 	variable int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	variable int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	begin
+		registers(0) := (others => '0');
 
 		if reset = '0' then
-			int_rdaddr1 := (others => '0');
-			int_rdaddr2 := (others => '0');
 			rddata1 <= (others => '0');
 			rddata2 <= (others => '0');
 
@@ -42,17 +41,14 @@ begin  -- rtl
 			  registers(to_integer(unsigned(wraddr))) := wrdata;
 			end if;  
 
-			int_rdaddr1 := rdaddr1;
-			int_rdaddr2 := rdaddr2;
-
-			if int_rdaddr1 /= zero then
-				rddata1 <= registers(to_integer(unsigned(int_rdaddr1)));
+			if rdaddr1 /= zero then
+				rddata1 <= registers(to_integer(unsigned(rdaddr1)));
 			else
 				rddata1 <= (others => '0');
 			end if;
 
-			if int_rdaddr2 /= zero then
-				rddata2 <= registers(to_integer(unsigned(int_rdaddr2)));
+			if rdaddr2 /= zero then
+				rddata2 <= registers(to_integer(unsigned(rdaddr2)));
 			else
 				rddata2 <= (others => '0');
 			end if;
