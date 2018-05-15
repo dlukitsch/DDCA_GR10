@@ -13,7 +13,7 @@ entity decode is
 		flush      : in  std_logic;
 		
 		pc_in      : in  std_logic_vector(PC_WIDTH-1 downto 0);
-		instr	   : in  std_logic_vector(INSTR_WIDTH-1 downto 0);
+		instr	     : in  std_logic_vector(INSTR_WIDTH-1 downto 0);
 		
 		wraddr     : in  std_logic_vector(REG_BITS-1 downto 0);
 		wrdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -77,17 +77,9 @@ architecture rtl of decode is
 	signal rddata1, rddata2 : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal rdaddr1, rdaddr2 : std_logic_vector(REG_BITS-1 downto 0);
 	
+	signal instr_next : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
+	
 begin  -- rtl
-
-	opcode <= instr(31 downto 26);
-	rs <= instr(25 downto 21);
-	rt <= instr(20 downto 16);
-	rd_r <= instr(15 downto 11);
-	rd_i <= instr(20 downto 16);
-	shamt <= instr(10 downto 6);
-	func <= instr(5 downto 0);
-	imm <= instr(15 downto 0);
-	address <= instr(25 downto 0);
 
 	regfile_inst : regfile
 	port map (
@@ -103,27 +95,48 @@ begin  -- rtl
 		rddata2 => rddata2
 	);
 	
-	process(all)
+	sync : process(all)
 	begin
 		if reset = '0' or flush = '1' then
 			-- insert NOPs
-			exec_op <= EXEC_NOP;
-			cop0_op <= COP0_NOP;
-			jmp_op <= JMP_NOP;
-			mem_op <= MEM_NOP;
-			wb_op <= WB_NOP;
-			exc_dec <= '0'; --set all to std-value to avoid latches
+			instr_next <= (others => '0');
 			pc_out <= (others => '0');
-			
 		elsif rising_edge(clk) and stall = '0' then
+			instr_next <= instr;
+			pc_out <= pc_in;
+		end if;
+	end process;
+	
+	output : process(all)
+	begin
+	
+		opcode <= instr_next(31 downto 26);
+		rs <= instr_next(25 downto 21);
+		rt <= instr_next(20 downto 16);
+		rd_r <= instr_next(15 downto 11);
+		rd_i <= instr_next(20 downto 16);
+		shamt <= instr_next(10 downto 6);
+		func <= instr_next(5 downto 0);
+		imm <= instr_next(15 downto 0);
+		address <= instr_next(25 downto 0);
+		
+		exec_op <= EXEC_NOP;
+		cop0_op <= COP0_NOP;
+		jmp_op <= JMP_NOP;
+		mem_op <= MEM_NOP;
+		wb_op <= WB_NOP;
+		exc_dec <= '0'; --set all to std-value to avoid latches
+		rdaddr1 <= (others => '0');
+		rdaddr2 <= (others => '0');
+		
+		if instr_next = x"00000000" then
 			exec_op <= EXEC_NOP;
 			cop0_op <= COP0_NOP;
 			jmp_op <= JMP_NOP;
 			mem_op <= MEM_NOP;
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
-			pc_out <= pc_in;
-
+		else
 			case opcode is
 				when "000000" =>
 					case func is

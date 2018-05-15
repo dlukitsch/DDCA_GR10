@@ -108,6 +108,7 @@ begin  -- rtl
 	);
 
 	state_machine : process(all)
+	variable temp : std_logic_vector(PC_WIDTH downto 0) := (others => '0');
 	begin
 		aluresult <= (others => '0');
 		wrdata <= (others => '0');
@@ -119,6 +120,7 @@ begin  -- rtl
 		alu_A <= (others => '0');
 		alu_B <= (others => '0');
 		result <= (others => '0');
+		temp := (others => '0');
 		
 		case state is
 			when NO_OP =>
@@ -135,8 +137,8 @@ begin  -- rtl
 				if exec_op.branch = '1' then
 					alu_A <= exec_op.readdata1;
 					alu_B <= exec_op.readdata2;
-					new_pc <= std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)))(PC_WIDTH-1 downto 0);
-
+					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
+					new_pc <= temp(PC_WIDTH-1 downto 0);
 					if exec_op.regdst = '1' then
 						result(PC_WIDTH-1 downto 0) <= pc_in;
 					end if;
