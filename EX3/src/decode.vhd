@@ -74,9 +74,8 @@ architecture rtl of decode is
 	signal imm : std_logic_vector(15 downto 0);
 	signal address : std_logic_vector(25 downto 0);
 	
-	signal regwrite_reg : std_logic := '0';
-	signal rddata1, rddata2, wrdata_reg : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-	signal rdaddr1, rdaddr2, wraddr_reg : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal rddata1, rddata2 : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal rdaddr1, rdaddr2 : std_logic_vector(REG_BITS-1 downto 0);
 	
 begin  -- rtl
 
@@ -97,9 +96,9 @@ begin  -- rtl
 		stall => stall,
 		rdaddr1 => rdaddr1,
 		rdaddr2 => rdaddr2,
-		wraddr => wraddr_reg,
-		wrdata => wrdata_reg,
-		regwrite => regwrite_reg,
+		wraddr => wraddr,
+		wrdata => wrdata,
+		regwrite => regwrite,
 		rddata1 => rddata1,
 		rddata2 => rddata2
 	);
@@ -115,9 +114,6 @@ begin  -- rtl
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
 			pc_out <= (others => '0');
-			wraddr_reg <= (others => '0');
-			wrdata_reg <= (others => '0');
-			regwrite_reg <= '0';
 			
 		elsif rising_edge(clk) and stall = '0' then
 			exec_op <= EXEC_NOP;
@@ -127,9 +123,6 @@ begin  -- rtl
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
 			pc_out <= pc_in;
-			wraddr_reg <= wraddr;
-			wrdata_reg <= wrdata;
-			regwrite_reg <= regwrite;
 
 			case opcode is
 				when "000000" =>
