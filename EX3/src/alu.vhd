@@ -20,7 +20,7 @@ architecture rtl of alu is
 begin  -- rtl
 
 	process(op, A, B)
-	variable R_temp : std_logic_vector(DATA_WIDTH-1 downto 0);
+	variable R_temp : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 	begin
 		case op is
 			when ALU_NOP =>
