@@ -88,6 +88,8 @@ begin  -- rtl
 	func <= instr(5 downto 0);
 	imm <= instr(15 downto 0);
 	address <= instr(25 downto 0);
+	
+	pc_out <= pc_in;
 
 	regfile_inst : regfile
 	port map (
@@ -113,7 +115,6 @@ begin  -- rtl
 			mem_op <= MEM_NOP;
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
-			pc_out <= pc_in;
 			
 		elsif rising_edge(clk) and stall = '0' then
 			exec_op <= EXEC_NOP;
@@ -122,7 +123,7 @@ begin  -- rtl
 			mem_op <= MEM_NOP;
 			wb_op <= WB_NOP;
 			exc_dec <= '0'; --set all to std-value to avoid latches
-			pc_out <= pc_in;
+
 			case opcode is
 				when "000000" =>
 					case func is

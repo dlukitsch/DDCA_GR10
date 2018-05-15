@@ -26,7 +26,7 @@ constant zeroD : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 begin  -- rtl
 
 	process(all)
-	variable registers : reg_type := (others => (others => '0'));
+	variable registers : reg_type; -- := (others => (others => '0'));
 	variable int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	variable int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	begin
