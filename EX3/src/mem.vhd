@@ -162,6 +162,7 @@ begin -- rtl
             pt_reg_next.wbop.regwrite <= '0';
         end if;
 
+        --ensure that no memory operation is asserted on stall
         if stall = '1' then
             memu_op.memread <= '0';
             memu_op.memwrite <= '0';

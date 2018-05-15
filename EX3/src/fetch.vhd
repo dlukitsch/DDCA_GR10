@@ -36,6 +36,7 @@ architecture rtl of fetch is
 
 begin  -- rtl
 
+    --discard the lowest 2 bits of pc_next because imem is word-addressed
     imem : imem_altera
     port map (
         address => pc_next(PC_WIDTH-1 downto 2),
@@ -60,13 +61,15 @@ begin  -- rtl
     begin
              
         pc_next <= pc;
- 
+
+        --select next program counter 
         if pcsrc = '1' then
             pc_next <= pc_in;
         else
             pc_next <= std_logic_vector(unsigned(pc) + 4);
         end if;
         
+        --reset pc_next in order to load instruction at imem address 0
         if reset = '0' then
             pc_next <= (others => '0');
             pc_out <= "00" & x"004";

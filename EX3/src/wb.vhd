@@ -64,6 +64,7 @@ begin  -- rtl
         wb_reg_next.memresult <= memresult;
         wb_reg_next.rd <= rd_in;
 
+        --determine if result from alu or memory
         if wb_reg.op.memtoreg = '1' then
             result <= wb_reg.memresult;
         else
