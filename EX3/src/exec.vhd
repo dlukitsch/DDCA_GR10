@@ -46,13 +46,7 @@ architecture rtl of exec is
 	end component;
 
 	signal exec_op : exec_op_type;
-	signal exec_rd : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
-	signal exec_rs : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
-	signal exec_rt : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	signal exec_pc : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
-	signal exec_mem : mem_op_type;
-	signal exec_wb : wb_op_type;
-	signal exec_jmp : jmp_op_type;
 
 	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
 	signal state: EXEC_TYPE := NO_OP;
@@ -78,9 +72,6 @@ begin  -- rtl
 
 			if stall = '0' then
 				exec_op <= op;
-				exec_rs <= op.rs;
-				exec_rd <= op.rd;
-				exec_rt <= op.rt;
 
 				if op.cop0 = '1' then
 					state <= COP_OP;
@@ -88,23 +79,18 @@ begin  -- rtl
 					state <= ALU_OP;
 				end if;
 
-				--pass signals for assignment 4
 				exec_pc <= pc_in;
-				exec_mem <= memop_in;
-				exec_jmp <= jmpop_in;
-				exec_wb <= wbop_in;
+				pc_out <= pc_in;
+				memop_out <= memop_in;
+				jmpop_out <= jmpop_in;
+				wbop_out <= wbop_in;
 			end if;
 		end if;
 	end process;
 
-	rs <= exec_rs;
-	rd <= exec_rd;
-	rt <= exec_rt;
-
-	pc_out <= exec_pc;
-	memop_out <= exec_mem;
-	wbop_out <= exec_wb;
-	jmpop_out <= exec_jmp;
+	rs <= exec_op.rs;
+	rd <= exec_op.rd;
+	rt <= exec_op.rt;
 
 	--instant of ALU-Unit
 	alu_inst : alu
