@@ -113,7 +113,7 @@ begin -- rtl
             pt_reg.aluresult <= (others => '0');
             pt_reg.new_pc <= (others => '0');
             pt_reg.wbop <= WB_NOP;
-            int_reg.mem_op <= MEM_OP;
+            int_reg.mem_op <= MEM_NOP;
             int_reg.jmp_op <= JMP_NOP;
             int_reg.wrdata <= (others => '0');
             int_reg.zero <= '0';
