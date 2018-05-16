@@ -20,7 +20,7 @@ end regfile;
 architecture rtl of regfile is
  
 TYPE reg_type is ARRAY((2**REG_BITS)-1 downto 0) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
-signal registers : reg_type := (others => (others => '0'));
+signal registers : reg_type;-- := (others => (others => '0'));
 signal int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 signal int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
@@ -49,7 +49,7 @@ begin  -- rtl
 		rddata1 <= (others => '0');
 		rddata2 <= (others => '0');
 
-		if int_rdaddr1 = wraddr and regwrite = '1' then
+		if rdaddr1 = wraddr and regwrite = '1' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata1 <= wrdata;
 			end if;
@@ -59,7 +59,7 @@ begin  -- rtl
 			end if;
 		end if;
 
-		if int_rdaddr2 = wraddr and regwrite = '1' then
+		if rdaddr2 = wraddr and regwrite = '1' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata2 <= wrdata;
 			end if;
