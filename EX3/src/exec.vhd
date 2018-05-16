@@ -63,7 +63,6 @@ begin  -- rtl
 	sync : process(all)
 	begin
 		if reset = '0' or flush = '1' then
-			exec_op <= EXEC_NOP;
 			state <= NO_OP;
 			pc_out <= (others => '0');
 			memop_out <= MEM_NOP;
@@ -73,7 +72,6 @@ begin  -- rtl
 		elsif rising_edge(clk) then
 
 			if stall = '0' then
-				exec_op <= op;
 
 				if op.cop0 = '1' then
 					state <= COP_OP;
@@ -90,9 +88,9 @@ begin  -- rtl
 		end if;
 	end process;
 
-	rs <= exec_op.rs;
-	rd <= exec_op.rd;
-	rt <= exec_op.rt;
+	rs <= op.rs;
+	rd <= op.rd;
+	rt <= op.rt;
 
 	--instant of ALU-Unit
 	alu_inst : alu
@@ -125,44 +123,44 @@ begin  -- rtl
 			when NO_OP =>
 				-- no operation use init values for nop
 			when ALU_OP =>
-				aluop <= exec_op.aluop;
+				aluop <= op.aluop;
 
-				if exec_op.ovf = '1' and alu_V = '1' then
+				if op.ovf = '1' and alu_V = '1' then
 					exc_ovf <= '1';
 				else
 					exc_ovf <= '0';
 				end if;
 
-				if exec_op.branch = '1' then
-					alu_A <= exec_op.readdata1;
-					alu_B <= exec_op.readdata2;
-					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
+				if op.branch = '1' then
+					alu_A <= op.readdata1;
+					alu_B <= op.readdata2;
+					temp := std_logic_vector(signed("0" & exec_pc) + signed(op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
-					if exec_op.regdst = '1' then
+					if op.regdst = '1' then
 						result(PC_WIDTH-1 downto 0) := exec_pc;
 					end if;
 
-				elsif exec_op.link = '1' then
-					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
+				elsif op.link = '1' then
+					new_pc <= op.readdata1(PC_WIDTH-1 downto 0);
 
-					if exec_op.regdst = '1' then
+					if op.regdst = '1' then
 						alu_A(PC_WIDTH-1 downto 0) <= exec_pc;
 						result := alu_R;
 					end if;
 
 				else
-					if exec_op.useimm = '1' then
-						alu_A <= exec_op.readdata1;
-						alu_B <= exec_op.imm;
+					if op.useimm = '1' then
+						alu_A <= op.readdata1;
+						alu_B <= op.imm;
 					else
-						alu_A <= exec_op.readdata1;
-						alu_B <= exec_op.readdata2;
+						alu_A <= op.readdata1;
+						alu_B <= op.readdata2;
 					end if;
 
 					result := alu_R;
 
-					if exec_op.regdst = '0' then
-						wrdata <= exec_op.readdata2;
+					if op.regdst = '0' then
+						wrdata <= op.readdata2;
 					end if;
 				end if;
 				
