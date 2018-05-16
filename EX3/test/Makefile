@@ -1,6 +1,6 @@
 
-#VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
-VSIM=vsim
+VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
+#VSIM=vsim
 
 compile_memu: 
 	$(VSIM) -c -do "do scripts/compile_memu.do;quit -f"

@@ -1,0 +1,187 @@
+# do scripts/sim_pipeline.do
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work ../src/core_pack.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling package core_pack
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work ../src/op_pack.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package core_pack
+# -- Compiling package op_pack
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work ../src/alu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity alu
+# -- Compiling architecture rtl of alu
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/decode.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity decode
+# -- Compiling architecture rtl of decode
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/exec.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity exec
+# -- Compiling architecture rtl of exec
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/fetch.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Compiling entity fetch
+# -- Compiling architecture rtl of fetch
+# End time: 19:07:06 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:06 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/jmpu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity jmpu
+# -- Compiling architecture rtl of jmpu
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/memu.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity memu
+# -- Compiling architecture rtl of memu
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/mem.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity mem
+# -- Compiling architecture rtl of mem
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/regfile.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Compiling entity regfile
+# -- Compiling architecture rtl of regfile
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 ../src/wb.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity wb
+# -- Compiling architecture rtl of wb
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work ../src/imem_altera.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Compiling entity imem_altera
+# -- Compiling architecture SYN of imem_altera
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
+# Start time: 19:07:07 on May 16,2018
+# vcom -reportprogress 300 -work work -2008 tb/pipeline_tb.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Loading package core_pack
+# -- Loading package op_pack
+# -- Compiling entity pipeline_tb
+# -- Compiling architecture bench of pipeline_tb
+# End time: 19:07:07 on May 16,2018, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim work.pipeline_tb 
+# Start time: 19:07:07 on May 16,2018
+# Loading std.standard
+# Loading std.textio(body)
+# Loading ieee.std_logic_1164(body)
+# Loading ieee.numeric_std(body)
+# Loading work.core_pack
+# Loading work.op_pack
+# Loading work.pipeline_tb(bench)
+# Loading work.pipeline(rtl)
+# Loading work.fetch(rtl)
+# Loading work.imem_altera(syn)
+# Loading ieee.std_logic_arith(body)
+# Loading ieee.std_logic_unsigned(body)
+# Loading altera_mf.altera_common_conversion(body)
+# Loading altera_mf.altera_device_families(body)
+# Loading altera_mf.altsyncram(translated)
+# Loading work.decode(rtl)
+# Loading work.regfile(rtl)
+# Loading work.exec(rtl)
+# Loading work.alu(rtl)
+# Loading work.mem(rtl)
+# Loading work.jmpu(rtl)
+# Loading work.memu(rtl)
+# Loading work.wb(rtl)
+# ** Warning: NUMERIC_STD."=": metavalue detected, returning FALSE
+#    Time: 0 ps  Iteration: 0  Instance: /pipeline_tb/UUT/exec_inst/alu_inst
+# End time: 19:07:22 on May 16,2018, Elapsed time: 0:00:15
+# Errors: 0, Warnings: 1
