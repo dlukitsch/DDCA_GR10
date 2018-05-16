@@ -1,4 +1,4 @@
-PROJECT=jump
+PROJECT=fib
 
 PREFIX=/usr/mips
 
