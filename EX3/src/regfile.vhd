@@ -20,40 +20,59 @@ end regfile;
 architecture rtl of regfile is
  
 TYPE reg_type is ARRAY((2**REG_BITS)-1 downto 0) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
-constant zero : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+signal registers : reg_type;
+signal int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+signal int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
 begin  -- rtl
 
-	process(all)
-	variable registers : reg_type;
-	variable int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
-	variable int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	sync : process(all)
 	begin
-		registers(0) := (others => '0');
-
 		if reset = '0' then
-			rddata1 <= (others => '0');
-			rddata2 <= (others => '0');
+			int_rdaddr1 <= (others => '0');
+			int_rdaddr2 <= (others => '0');
 
 		elsif rising_edge(clk) and stall = '0' then
 
-			if regwrite = '1' and wraddr /= zero then
-			  registers(to_integer(unsigned(wraddr))) := wrdata;
+			if regwrite = '1' then
+			  registers(to_integer(unsigned(wraddr))) <= wrdata;
 			end if;  
 
-			if rdaddr1 /= zero then
-				rddata1 <= registers(to_integer(unsigned(rdaddr1)));
-			else
-				rddata1 <= (others => '0');
-			end if;
-
-			if rdaddr2 /= zero then
-				rddata2 <= registers(to_integer(unsigned(rdaddr2)));
-			else
-				rddata2 <= (others => '0');
-			end if;
-
+			int_rdaddr1 <= rdaddr1;
+			int_rdaddr2 <= rdaddr2;
 		end if;
 	end process;
 
+	output : process(all)
+	begin
+
+		if int_rdaddr1 = wraddr then
+			if to_integer(unsigned(wraddr)) /= 0 then
+				rddata1 <= wrdata;
+			else
+				rddata1 <= (others => '0');
+			end if;
+		else
+			if to_integer(unsigned(int_rdaddr1)) /= 0 then
+				rddata1 <= registers(to_integer(unsigned(int_rdaddr1)));
+			else
+				rddata1 <= (others => '0');
+			end if;
+		end if;
+
+		if int_rdaddr2 = wraddr then
+			if to_integer(unsigned(wraddr)) /= 0 then
+				rddata2 <= wrdata;
+			else
+				rddata2 <= (others => '0');
+			end if;
+		else
+			if to_integer(unsigned(int_rdaddr2)) /= 0 then
+				rddata2 <= registers(to_integer(unsigned(int_rdaddr2)));
+			else
+				rddata2 <= (others => '0');
+			end if;
+		end if;
+
+	end process;
 end rtl;
