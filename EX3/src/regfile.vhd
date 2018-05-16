@@ -32,7 +32,7 @@ begin  -- rtl
 		elsif rising_edge(clk) and stall = '0' then
 
 			if regwrite = '1'  then
-			  registers(to_integer(unsigned(wraddr))) <= wrdata;
+			  registers(to_integer(unsigned(wraddr))) := wrdata;
 			end if;  
 
 			rddata1 <= (others => '0');
