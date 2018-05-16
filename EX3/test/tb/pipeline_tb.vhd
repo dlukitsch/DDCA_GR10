@@ -45,7 +45,7 @@ begin
         mem_in.busy <= '0';
         mem_in.rddata <= (others => '0');
         reset <= '0';
-        wait for CLK_PERIOD;
+        wait for 2*CLK_PERIOD;
         reset <= '1'; 
         wait;  
     end process;

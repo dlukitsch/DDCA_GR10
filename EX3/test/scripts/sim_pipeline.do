@@ -23,6 +23,7 @@ vsim work.pipeline_tb
 
 # signals for debugging
 add wave -radix hex /pipeline_tb/UUT/*
+add wave -radix hex /pipeline_tb/UUT/decode_inst/regfile_inst/*
 
 run 5 us
 
