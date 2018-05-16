@@ -44,7 +44,7 @@ architecture rtl of decode is
 	end component;
 	
 	procedure shift_imm(
-		signal data_in  : in std_logic_vector(15 downto 0);
+		variable data_in  : in std_logic_vector(15 downto 0);
 		signal data_out : out std_logic_vector(31 downto 0)
 		) is
 	begin
@@ -57,7 +57,7 @@ architecture rtl of decode is
 	end shift_imm;
 	
 	procedure calc_imm(
-		signal data_in  : in std_logic_vector(15 downto 0);
+		variable data_in  : in std_logic_vector(15 downto 0);
 		signal data_out : out std_logic_vector(31 downto 0)
 		) is
 	begin
@@ -68,11 +68,6 @@ architecture rtl of decode is
 			data_out(15 downto 0) <= data_in;
 		end if;
 	end calc_imm;
-	
-	signal opcode, func : std_logic_vector(5 downto 0);
-	signal rs, rt, rd_r, rd_i, shamt : std_logic_vector(4 downto 0);
-	signal imm : std_logic_vector(15 downto 0);
-	signal address : std_logic_vector(25 downto 0);
 	
 	signal rddata1, rddata2 : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal rdaddr1, rdaddr2 : std_logic_vector(REG_BITS-1 downto 0);
@@ -108,17 +103,21 @@ begin  -- rtl
 	end process;
 	
 	output : process(all)
+		variable rs, rt, rd_r, rd_i, shamt : std_logic_vector(4 downto 0) := (others => '0');
+		variable opcode, func : std_logic_vector(5 downto 0) := (others => '0');
+		variable imm : std_logic_vector(15 downto 0) := (others => '0');
+		variable address : std_logic_vector(25 downto 0) := (others => '0');
 	begin
 	
-		opcode <= instr_next(31 downto 26);
-		rs <= instr_next(25 downto 21);
-		rt <= instr_next(20 downto 16);
-		rd_r <= instr_next(15 downto 11);
-		rd_i <= instr_next(20 downto 16);
-		shamt <= instr_next(10 downto 6);
-		func <= instr_next(5 downto 0);
-		imm <= instr_next(15 downto 0);
-		address <= instr_next(25 downto 0);
+		opcode := instr_next(31 downto 26);
+		rs := instr_next(25 downto 21);
+		rt := instr_next(20 downto 16);
+		rd_r := instr_next(15 downto 11);
+		rd_i := instr_next(20 downto 16);
+		shamt := instr_next(10 downto 6);
+		func := instr_next(5 downto 0);
+		imm := instr_next(15 downto 0);
+		address := instr_next(25 downto 0);
 		
 		exec_op <= EXEC_NOP;
 		cop0_op <= COP0_NOP;
