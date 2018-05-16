@@ -495,10 +495,10 @@ begin  -- rtl
 					wb_op.regwrite <= '1';
 				when "001111" => --LUI
 					exec_op.aluop <= ALU_LUI;
-					exec_op.imm(15 downto 0) <= imm;
+					exec_op.readdata2(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
 					exec_op.regdst <= '1';
-					exec_op.useimm <= '1';
+					--exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
 				when "010000" =>
 					case rs is  --not implemented yet --> all NOPs
