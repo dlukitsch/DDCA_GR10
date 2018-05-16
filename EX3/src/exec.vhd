@@ -143,10 +143,10 @@ begin  -- rtl
 					end if;
 
 				elsif exec_op.link = '1' then
-					new_pc <= exec_op.readdata1(13 downto 0);
+					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
 
 					if exec_op.regdst = '1' then
-						alu_A(13 downto 0) <= exec_pc;
+						alu_A(PC_WIDTH-1 downto 0) <= exec_pc;
 						result := alu_R;
 					end if;
 
@@ -162,7 +162,7 @@ begin  -- rtl
 					result := alu_R;
 
 					if exec_op.regdst = '0' then
-						wrdata <= alu_R;
+						wrdata <= exec_op.readdata2;
 					end if;
 				end if;
 				

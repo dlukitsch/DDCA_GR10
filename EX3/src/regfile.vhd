@@ -20,7 +20,7 @@ end regfile;
 architecture rtl of regfile is
  
 TYPE reg_type is ARRAY((2**REG_BITS)-1 downto 0) OF STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0); 
-signal registers : reg_type;
+signal registers : reg_type := (others => (others => '0'));
 signal int_rdaddr1 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 signal int_rdaddr2 : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 
@@ -34,43 +34,38 @@ begin  -- rtl
 
 		elsif rising_edge(clk) and stall = '0' then
 
-			if regwrite = '1' then
+			int_rdaddr1 <= rdaddr1;
+			int_rdaddr2 <= rdaddr2;
+
+			if regwrite = '1'  then
 			  registers(to_integer(unsigned(wraddr))) <= wrdata;
 			end if;  
 
-			int_rdaddr1 <= rdaddr1;
-			int_rdaddr2 <= rdaddr2;
 		end if;
 	end process;
 
 	output : process(all)
 	begin
+		rddata1 <= (others => '0');
+		rddata2 <= (others => '0');
 
-		if int_rdaddr1 = wraddr then
+		if int_rdaddr1 = wraddr and regwrite = '1' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata1 <= wrdata;
-			else
-				rddata1 <= (others => '0');
 			end if;
 		else
 			if to_integer(unsigned(int_rdaddr1)) /= 0 then
 				rddata1 <= registers(to_integer(unsigned(int_rdaddr1)));
-			else
-				rddata1 <= (others => '0');
 			end if;
 		end if;
 
-		if int_rdaddr2 = wraddr then
+		if int_rdaddr2 = wraddr and regwrite = '1' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata2 <= wrdata;
-			else
-				rddata2 <= (others => '0');
 			end if;
 		else
 			if to_integer(unsigned(int_rdaddr2)) /= 0 then
 				rddata2 <= registers(to_integer(unsigned(int_rdaddr2)));
-			else
-				rddata2 <= (others => '0');
 			end if;
 		end if;
 
