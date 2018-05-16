@@ -134,8 +134,8 @@ begin  -- rtl
 				end if;
 
 				if exec_op.branch = '1' then
-					alu_A <= op.readdata1;
-					alu_B <= op.readdata2;
+					alu_A <= exec_op.readdata1;
+					alu_B <= exec_op.readdata2;
 					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
 					if exec_op.regdst = '1' then
@@ -143,7 +143,7 @@ begin  -- rtl
 					end if;
 
 				elsif exec_op.link = '1' then
-					new_pc <= op.readdata1(PC_WIDTH-1 downto 0);
+					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
 
 					if exec_op.regdst = '1' then
 						alu_A(PC_WIDTH-1 downto 0) <= exec_pc;
@@ -152,17 +152,17 @@ begin  -- rtl
 
 				else
 					if exec_op.useimm = '1' then
-						alu_A <= op.readdata1;
+						alu_A <= exec_op.readdata1;
 						alu_B <= exec_op.imm;
 					else
-						alu_A <= op.readdata1;
-						alu_B <= op.readdata2;
+						alu_A <= exec_op.readdata1;
+						alu_B <= exec_op.readdata2;
 					end if;
 
 					result := alu_R;
 
 					if exec_op.regdst = '0' then
-						wrdata <= op.readdata2;
+						wrdata <= exec_op.readdata2;
 					end if;
 				end if;
 				
