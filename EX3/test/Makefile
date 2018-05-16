@@ -34,6 +34,9 @@ compile_pipeline:
 sim_pipeline: compile_pipeline
 	$(VSIM) -do "do scripts/sim_pipeline.do" 
 
+sim_dec_exec:
+	$(VSIM) -do "do scripts/sim_dec_exec.do" 
+
 clean:
 	rm -fr work
 	rm -f transcript

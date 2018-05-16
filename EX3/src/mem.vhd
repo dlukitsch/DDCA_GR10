@@ -75,7 +75,6 @@ architecture rtl of mem is
         wrdata     : std_logic_vector(DATA_WIDTH-1 downto 0);
         zero       : std_logic;
         neg        : std_logic;
---        mem_data   : std_logic_vector(DATA_WIDTH-1 downto 0);
     end record;
     
     signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS;
@@ -97,7 +96,6 @@ begin -- rtl
         op => memu_op,
         A => pt_reg.aluresult(ADDR_WIDTH-1 downto 0),
         W => int_reg.wrdata,
---        D => int_reg.mem_data,
         D => mem_data,
         M => mem_out,
         R => memresult,
@@ -119,7 +117,6 @@ begin -- rtl
             int_reg.wrdata <= (others => '0');
             int_reg.zero <= '0';
             int_reg.neg <= '0';
---            int_reg.mem_data <= (others => '0');
         elsif rising_edge(clk) then
             if stall = '0' then
                 pt_reg <= pt_reg_next;
@@ -143,7 +140,6 @@ begin -- rtl
         int_reg_next.wrdata <= wrdata;
         int_reg_next.zero <= zero;
         int_reg_next.neg <= neg;
---        int_reg_next.mem_data <= mem_data;
         
         pc_out          <= pt_reg.pc;
         rd_out          <= pt_reg.rd;
