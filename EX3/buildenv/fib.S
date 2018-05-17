@@ -15,8 +15,8 @@
         .ent    _start
                 
 _start:
-	addi $3, $0, 0          # loop counter
-	addi $4, $0, 5          # loop bound
+	addi $3, $0, 2          # loop counter
+	addi $4, $0, 10          # loop bound
 	addi $1, $0, 1          # F_n-1
 	addi $2, $0, 1          # F_n-2
 	
