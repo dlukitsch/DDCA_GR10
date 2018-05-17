@@ -35,7 +35,7 @@ begin
     port map (
         clk => clk,
         reset => reset,
-        mem_in => mem_in,
+        mem_in => mem_in, --stall
         mem_out => mem_out,
         intr => (others => '0')
     );
@@ -46,7 +46,14 @@ begin
         mem_in.rddata <= (others => '0');
         reset <= '0';
         wait for 2*CLK_PERIOD;
-        reset <= '1'; 
+        reset <= '1';
+        mem_in.busy <= '1';
+        wait for 1*CLK_PERIOD;
+        mem_in.busy <= '0';
+        wait for 20*CLK_PERIOD;
+        mem_in.busy <= '1';
+        wait for 1*CLK_PERIOD;
+        mem_in.busy <= '0';
         wait;  
     end process;
 

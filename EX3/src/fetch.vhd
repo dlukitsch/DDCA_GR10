@@ -32,13 +32,14 @@ architecture rtl of fetch is
 
     end component;
 
-    signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal pc, pc_next, pc_imem : std_logic_vector(PC_WIDTH-1 downto 0);
 begin  -- rtl
 
     --discard the lowest 2 bits of pc_next because imem is word-addressed
     imem : imem_altera
     port map (
         address => pc_next(PC_WIDTH-1 downto 2),
+        --address => pc_imem(PC_WIDTH-1 downto 2),
         clock => clk,
         q => instr
     );
@@ -64,9 +65,17 @@ begin  -- rtl
         --select next program counter 
         if pcsrc = '1' then
             pc_next <= pc_in;
-        elsif stall = '0' then
+        else
             pc_next <= std_logic_vector(unsigned(pc) + 4);
         end if;
+        
+--        if pcsrc = '1' and stall = '0' then
+--            pc_next <= pc_in;
+--        elsif reset = '1' then
+--            pc_next <= std_logic_vector(unsigned(pc) + 4);
+--        end if;
+        
+        pc_out <= pc_next;
         
         --reset pc_next in order to load instruction at imem address 0
         if reset = '0' then
@@ -74,7 +83,11 @@ begin  -- rtl
             pc_out <= "00" & x"004";
         end if;
 
-        pc_out <= pc_next;
+--        pc_imem <= pc_next;
+--
+--        if reset = '1' and stall = '1' then
+--            pc_imem <= pc;
+--        end if;
     
     end process; 
 
