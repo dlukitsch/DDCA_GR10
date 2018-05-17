@@ -49,7 +49,7 @@ begin  -- rtl
 		rddata1 <= (others => '0');
 		rddata2 <= (others => '0');
 
-		if int_rdaddr1 = wraddr and regwrite = '1' then
+		if int_rdaddr1 = wraddr and regwrite = '1' and stall = '0' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata1 <= wrdata;
 			end if;
@@ -59,7 +59,7 @@ begin  -- rtl
 			end if;
 		end if;
 
-		if int_rdaddr2 = wraddr and regwrite = '1' then
+		if int_rdaddr2 = wraddr and regwrite = '1' and stall = '0' then
 			if to_integer(unsigned(wraddr)) /= 0 then
 				rddata2 <= wrdata;
 			end if;

@@ -33,7 +33,6 @@ architecture rtl of fetch is
     end component;
 
     signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
-
 begin  -- rtl
 
     --discard the lowest 2 bits of pc_next because imem is word-addressed
@@ -65,7 +64,7 @@ begin  -- rtl
         --select next program counter 
         if pcsrc = '1' then
             pc_next <= pc_in;
-        else
+        elsif stall = '0' then
             pc_next <= std_logic_vector(unsigned(pc) + 4);
         end if;
         
