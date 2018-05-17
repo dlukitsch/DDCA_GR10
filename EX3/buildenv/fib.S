@@ -22,11 +22,13 @@ _start:
 	
 $loop:
         beq $3, $4, $exit       # loop condition
-        add $5, $1, $0          # store F_n-1 value to temp register
-        add $1, $2, $1          # F_n=F_n-1 + F_n-2
         nop
-	add $2, $5, $0          # F_n-2 := F_n-1   
+	nop
+	nop
+	add $5, $1, $0          # store F_n-1 value to temp register
+        add $1, $2, $1          # F_n=F_n-1 + F_n-2 
         addi $3, $3, 1         # counter := counter + 1
+	add $2, $5, $0          # F_n-2 := F_n-1   
         j $loop                 # jump to loop entry
 	nop
 	nop
