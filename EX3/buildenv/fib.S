@@ -20,8 +20,8 @@ _start:
 	addi $1, $0, 1          # F_n-1
 	addi $2, $0, 1          # F_n-2
 	
-$loop:
-        beq $3, $4, $exit       # loop condition
+loop:
+        beq $3, $4, exit       # loop condition
         nop
 	nop
 	nop
@@ -29,12 +29,12 @@ $loop:
         add $1, $2, $1          # F_n=F_n-1 + F_n-2 
         addi $3, $3, 1         # counter := counter + 1
 	add $2, $5, $0          # F_n-2 := F_n-1   
-        j $loop                 # jump to loop entry
+        j loop                 # jump to loop entry
 	nop
 	nop
 	nop
 
-$exit:
+exit:
   
 	.end	_start
 	.size	_start, .-_start
