@@ -33,15 +33,17 @@ architecture rtl of fetch is
     end component;
 
     signal pc, pc_next, pc_imem : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0);
+    signal stall_old : std_logic;
+
 begin  -- rtl
 
     --discard the lowest 2 bits of pc_next because imem is word-addressed
     imem : imem_altera
     port map (
         address => pc_next(PC_WIDTH-1 downto 2),
-        --address => pc_imem(PC_WIDTH-1 downto 2),
         clock => clk,
-        q => instr
+        q => instr_imem
     );
 
     sync : process(all)
@@ -49,9 +51,16 @@ begin  -- rtl
 
         if reset = '0' then
             pc <= (others => '0');
+            instr_old <= instr_imem;
+            stall_old <= '0';
         elsif rising_edge(clk) then
+            stall_old <= stall;
             if stall = '0' then
                 pc <= pc_next;
+            end if;
+            --stall instr_old only if cpu is stalled longer than 1 cycle
+            if stall_old = '0' then
+                instr_old <= instr_imem;
             end if;
         end if;
 
@@ -69,12 +78,6 @@ begin  -- rtl
             pc_next <= std_logic_vector(unsigned(pc) + 4);
         end if;
         
---        if pcsrc = '1' and stall = '0' then
---            pc_next <= pc_in;
---        elsif reset = '1' then
---            pc_next <= std_logic_vector(unsigned(pc) + 4);
---        end if;
-        
         pc_out <= pc_next;
         
         --reset pc_next in order to load instruction at imem address 0
@@ -83,12 +86,13 @@ begin  -- rtl
             pc_out <= "00" & x"004";
         end if;
 
---        pc_imem <= pc_next;
---
---        if reset = '1' and stall = '1' then
---            pc_imem <= pc;
---        end if;
-    
+        instr <= instr_imem;
+
+        --on stall, output old instruction while new instruction is already loaded from imem
+        if stall = '1' then
+            instr <= instr_old;
+        end if;
+ 
     end process; 
 
 end rtl;

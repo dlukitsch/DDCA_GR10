@@ -47,13 +47,13 @@ begin
         reset <= '0';
         wait for 2*CLK_PERIOD;
         reset <= '1';
-        mem_in.busy <= '1';
-        wait for 1*CLK_PERIOD;
-        mem_in.busy <= '0';
-        wait for 20*CLK_PERIOD;
-        mem_in.busy <= '1';
-        wait for 1*CLK_PERIOD;
-        mem_in.busy <= '0';
+--        mem_in.busy <= '1';
+--        wait for 1*CLK_PERIOD;
+--        mem_in.busy <= '0';
+--        wait for 22*CLK_PERIOD;
+--        mem_in.busy <= '1';
+--        wait for 1*CLK_PERIOD;
+--        mem_in.busy <= '0';
         wait;  
     end process;
 
