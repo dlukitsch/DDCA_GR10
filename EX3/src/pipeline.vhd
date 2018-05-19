@@ -142,12 +142,31 @@ architecture rtl of pipeline is
 	signal rd_out_mem : std_logic_vector(REG_BITS-1 downto 0);
 	signal aluresult_out_mem, memresult_mem : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal wbop_out_mem : wb_op_type;
+	
+	constant SYNC_STAGES : integer  := 2;
+	signal sync : std_logic_vector(1 to SYNC_STAGES) := (others => '0');
+	signal reset_sync : std_logic;
+	
 begin  -- rtl
+	
+	synchronizer : process(all)
+	begin
+		if rising_edge(clk) then
+			sync(1) <= reset; -- get new data
+			-- forward data to next synchronizer stage
+			for i in 2 to SYNC_STAGES loop
+				sync(i) <= sync(i - 1);
+			end loop;
+		end if;
+	end process;
+
+	-- output synchronized data
+	reset_sync <= sync(SYNC_STAGES);
 	
 	fetch_inst : fetch
 	port map(
 		clk => clk,
-		reset => reset,
+		reset => reset_sync,
 		stall => mem_in.busy,
 		pcsrc => pcsrc_fetch,
 		pc_in => pc_in_fetch,
@@ -158,7 +177,7 @@ begin  -- rtl
 	decode_inst : decode
 	port map(
 		clk => clk,
-		reset => reset,
+		reset => reset_sync,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_fetch,
@@ -178,7 +197,7 @@ begin  -- rtl
 	exec_inst : exec
 	port map(
 		clk => clk,
-		reset => reset,
+		reset => reset_sync,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_decode,
@@ -209,7 +228,7 @@ begin  -- rtl
 	mem_inst : mem
 	port map (
 		clk => clk,
-		reset => reset,
+		reset => reset_sync,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
@@ -238,7 +257,7 @@ begin  -- rtl
 	wb_inst : wb
 	port map (
 		clk => clk,
-		reset => reset,
+		reset => reset_sync,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		op => wbop_out_mem,

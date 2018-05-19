@@ -50,8 +50,7 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            pc <= "11111111111000";
-            --pc <= (others => '0');
+            pc <= (others => '0');
             instr_old <= instr_imem;
             stall_old <= '0';
         elsif rising_edge(clk) then
@@ -82,10 +81,10 @@ begin  -- rtl
         pc_out <= pc_next;
         
         --reset pc_next in order to load instruction at imem address 0
---        if reset = '0' then
---            pc_next <= (others => '0');
---            pc_out <= "00" & x"004";
---        end if;
+        if reset = '0' then
+            pc_next <= (others => '0');
+            pc_out <= "00" & x"004";
+        end if;
 
         instr <= instr_imem;
 
