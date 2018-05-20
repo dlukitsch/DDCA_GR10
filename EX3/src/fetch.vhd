@@ -32,7 +32,7 @@ architecture rtl of fetch is
 
     end component;
 
-    signal pc, pc_next, pc_imem : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
     signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0);
     signal stall_old : std_logic;
 

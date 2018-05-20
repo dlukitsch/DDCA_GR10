@@ -143,25 +143,16 @@ architecture rtl of pipeline is
 	signal aluresult_out_mem, memresult_mem : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal wbop_out_mem : wb_op_type;
 	
-	constant SYNC_STAGES : integer  := 2;
-	signal sync : std_logic_vector(1 to SYNC_STAGES) := (others => '0');
-	signal reset_sync : std_logic;
+	signal reset_sync : std_logic := '1';
 	
 begin  -- rtl
 	
 	synchronizer : process(all)
 	begin
 		if rising_edge(clk) then
-			sync(1) <= reset; -- get new data
-			-- forward data to next synchronizer stage
-			for i in 2 to SYNC_STAGES loop
-				sync(i) <= sync(i - 1);
-			end loop;
+			reset_sync <= reset; -- get new data
 		end if;
 	end process;
-
-	-- output synchronized data
-	reset_sync <= sync(SYNC_STAGES);
 	
 	fetch_inst : fetch
 	port map(
