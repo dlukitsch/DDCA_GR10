@@ -52,15 +52,11 @@ begin  -- rtl
         if reset = '0' then
             pc <= (others => '0');
             instr_old <= instr_imem;
-            stall_old <= '0';
         elsif rising_edge(clk) then
-            stall_old <= stall;
             if stall = '0' then
                 pc <= pc_next;
-            end if;
-            --stall instr_old only if cpu is stalled longer than 1 cycle
-            if stall_old = '0' then
-                instr_old <= instr_imem;
+				-- save old instruction for possible stall
+				instr_old <= instr_imem;               
             end if;
         end if;
 
@@ -71,12 +67,14 @@ begin  -- rtl
              
         pc_next <= pc;
 
-        --select next program counter 
-        if pcsrc = '1' then
-            pc_next <= pc_in;
-        else
-            pc_next <= std_logic_vector(unsigned(pc) + 4);
-        end if;
+        --select next program counter just if there is no stall
+		if stall = '0' then
+			if pcsrc = '1' then
+				pc_next <= pc_in;
+			else
+				pc_next <= std_logic_vector(unsigned(pc) + 4);
+			end if;
+		end if;
         
         pc_out <= pc_next;
         

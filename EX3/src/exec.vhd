@@ -139,14 +139,14 @@ begin  -- rtl
 					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
 					if exec_op.regdst = '1' then
-						result(PC_WIDTH-1 downto 0) := exec_pc;
+						result(PC_WIDTH-1 downto 0) := std_logic_vector(unsigned(exec_pc) + 4);
 					end if;
 
 				elsif exec_op.link = '1' then
 					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
 
 					if exec_op.regdst = '1' then
-						alu_A(PC_WIDTH-1 downto 0) <= exec_pc;
+						alu_A(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(exec_pc) + 4);
 						result := alu_R;
 					end if;
 

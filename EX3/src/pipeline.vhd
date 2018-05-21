@@ -144,6 +144,7 @@ architecture rtl of pipeline is
 	signal wbop_out_mem : wb_op_type;
 	
 	signal reset_sync : std_logic := '1';
+	signal stall_sync : std_logic := '0';
 	
 begin  -- rtl
 	
@@ -151,6 +152,7 @@ begin  -- rtl
 	begin
 		if rising_edge(clk) then
 			reset_sync <= reset; -- get new data
+			stall_sync <= mem_in.busy;
 		end if;
 	end process;
 	
@@ -158,7 +160,7 @@ begin  -- rtl
 	port map(
 		clk => clk,
 		reset => reset_sync,
-		stall => mem_in.busy,
+		stall => stall_sync,
 		pcsrc => pcsrc_fetch,
 		pc_in => pc_in_fetch,
 		pc_out => pc_out_fetch,
@@ -169,7 +171,7 @@ begin  -- rtl
 	port map(
 		clk => clk,
 		reset => reset_sync,
-		stall => mem_in.busy,
+		stall => stall_sync,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_fetch,
 		instr => instr_fetch,
@@ -189,7 +191,7 @@ begin  -- rtl
 	port map(
 		clk => clk,
 		reset => reset_sync,
-		stall => mem_in.busy,
+		stall => stall_sync,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_decode,
 		op => exec_op_decode,
@@ -220,7 +222,7 @@ begin  -- rtl
 	port map (
 		clk => clk,
 		reset => reset_sync,
-		stall => mem_in.busy,
+		stall => stall_sync,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
 		jmp_op => jmpop_out_exec,
@@ -249,7 +251,7 @@ begin  -- rtl
 	port map (
 		clk => clk,
 		reset => reset_sync,
-		stall => mem_in.busy,
+		stall => stall_sync,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		op => wbop_out_mem,
 		rd_in => rd_out_mem,
