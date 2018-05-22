@@ -42,6 +42,9 @@ architecture bench of pipeline_tb is
     signal mem_out : mem_out_type;
     signal ocram_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 
+	type mux_type is (MUX_OCRAM, MUX_UART);
+	signal mux : mux_type;
+
 begin
 
     UUT : pipeline
@@ -63,37 +66,36 @@ begin
         q => ocram_data
     );
 
+    --mem_in.busy <= mem_out.rd;
+
     iomux : process(all)
     begin
         
-        mem_in.busy <= mem_out.rd;
---        mem_in.busy <= '0';
+        --mem_in.busy <= '0';
         mem_in.rddata <= (others => '0');
         ocram_wr <= '0';
         if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "00" then
             mem_in.rddata <= ocram_data;
             ocram_wr <= mem_out.wr;
         end if;
-    
+ 
     end process;
 
     stimulus : process
     begin
---        mem_in.busy <= '0';
+        mem_in.busy <= '0';
 --        mem_in.rddata <= (others => '0');
         reset <= '0';
-        wait for 1.5*CLK_PERIOD;
+        wait for 2*CLK_PERIOD;
         reset <= '1';
 --        mem_in.rddata <= ocram_data;
 --        mem_in.busy <= '1';
 --        wait for 2*CLK_PERIOD;
 --        mem_in.busy <= '0';
---        wait for 20*CLK_PERIOD;
---        mem_in.busy <= '1';
---        reset <= '0';
---        wait for 2*CLK_PERIOD;
---        mem_in.busy <= '0';
---        reset <= '1';
+        wait for 45*CLK_PERIOD;
+        mem_in.busy <= '1';
+        wait for 1*CLK_PERIOD;
+        mem_in.busy <= '0';
         wait;  
     end process;
 

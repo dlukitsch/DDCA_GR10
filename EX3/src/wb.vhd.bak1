@@ -35,7 +35,7 @@ architecture rtl of wb is
         rd        : std_logic_vector(REG_BITS-1 downto 0); 
     end record;
 
-    signal wb_reg, wb_reg_next : WB_REGISTERS;
+    signal wb_reg, wb_reg_next : WB_REGISTERS := (WB_NOP, (others => '0'), (others => '0'), (others => '0'));
 
 begin  -- rtl
 
@@ -48,9 +48,7 @@ begin  -- rtl
             wb_reg.memresult <= (others => '0');
             wb_reg.rd <= (others => '0');
         elsif rising_edge(clk) then
-            if stall = '0' then
-                wb_reg <= wb_reg_next;
-            end if;
+            wb_reg <= wb_reg_next;
         end if;
 
     end process;
@@ -58,10 +56,14 @@ begin  -- rtl
     output : process(all)
     begin
 
-        wb_reg_next.op <= op;
-        wb_reg_next.aluresult <= aluresult;
-        wb_reg_next.memresult <= memresult;
-        wb_reg_next.rd <= rd_in;
+        wb_reg_next <= wb_reg;
+
+        if stall = '0' then
+            wb_reg_next.op <= op;
+            wb_reg_next.aluresult <= aluresult;
+            wb_reg_next.memresult <= memresult;
+            wb_reg_next.rd <= rd_in;
+        end if;
 
         --determine if result from alu or memory
         if wb_reg.op.memtoreg = '1' then

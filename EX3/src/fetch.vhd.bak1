@@ -34,7 +34,6 @@ architecture rtl of fetch is
 
     signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
     signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
-    signal stall_old : std_logic;
 
 begin  -- rtl
 
@@ -58,7 +57,6 @@ begin  -- rtl
             end if;
 	    -- save old instruction for possible stall
 	    instr_old <= instr_imem;
-            stall_old <= stall;
         end if;
 
     end process;
@@ -88,7 +86,7 @@ begin  -- rtl
         instr <= instr_imem;
 
         --on stall, output old instruction while new instruction is already loaded from imem
-        if stall_old = '1' then
+        if stall = '1' then
             instr <= instr_old;
         end if;
  
