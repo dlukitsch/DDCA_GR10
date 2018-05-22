@@ -71,13 +71,11 @@ begin  -- rtl
         pc_next <= pc;
 
         --select next program counter just if there is no stall
-        --if stall = '0' then
-            if pcsrc = '1' then
-                    pc_next <= pc_in;
-            else
-                    pc_next <= std_logic_vector(unsigned(pc) + 4);
-            end if;
-        --end if;
+		if pcsrc = '1' then
+				pc_next <= pc_in;
+		else
+				pc_next <= std_logic_vector(unsigned(pc) + 4);
+		end if;
         
         pc_out <= pc_next;
         
