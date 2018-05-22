@@ -9,6 +9,7 @@ vcom -work work -2008 ../src/memu.vhd
 vcom -work work -2008 ../src/mem.vhd
 vcom -work work -2008 ../src/regfile.vhd
 vcom -work work -2008 ../src/wb.vhd
+vcom -work work ../src/ocram_altera.vhd
 vcom -work work ../src/imem_altera.vhd
 vcom -work work -2008 tb/pipeline_tb.vhd
 
