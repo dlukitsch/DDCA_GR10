@@ -92,7 +92,7 @@ begin
 --        mem_in.busy <= '1';
 --        wait for 2*CLK_PERIOD;
 --        mem_in.busy <= '0';
-        wait for 45*CLK_PERIOD;
+        wait for 45.5*CLK_PERIOD;
         mem_in.busy <= '1';
         wait for 1*CLK_PERIOD;
         mem_in.busy <= '0';

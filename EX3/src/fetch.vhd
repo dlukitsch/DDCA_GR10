@@ -56,9 +56,11 @@ begin  -- rtl
             if stall = '0' then
                 pc <= pc_next;
             end if;
-	    -- save old instruction for possible stall
-	    instr_old <= instr_imem;
             stall_old <= stall;
+	    if stall_old = '0' then
+                -- save old instruction for possible stall
+	        instr_old <= instr_imem;
+            end if;
         end if;
 
     end process;
