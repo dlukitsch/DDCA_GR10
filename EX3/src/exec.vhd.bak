@@ -45,19 +45,11 @@ architecture rtl of exec is
 		);
 	end component;
 
-        type PASSTHROUGH_REGISTERS is record
-            memop : mem_op_type;
-            jmpop : jmp_op_type;
-            wbop  : wb_op_type;
-        end record;
-
-        signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS;
-	
-        signal exec_op, exec_op_next : exec_op_type := EXEC_NOP;
-	signal exec_pc, exec_pc_next : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
+	signal exec_op : exec_op_type;
+	signal exec_pc : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 
 	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
-	signal state, state_next : EXEC_TYPE := NO_OP;
+	signal state: EXEC_TYPE := NO_OP;
 
 	signal aluop : alu_op_type;
 	signal alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -73,18 +65,29 @@ begin  -- rtl
 		if reset = '0' or flush = '1' then
 			exec_op <= EXEC_NOP;
 			state <= NO_OP;
-			pt_reg.memop <= MEM_NOP;
-			pt_reg.jmpop <= JMP_NOP;
-			pt_reg.wbop <= WB_NOP;
+			pc_out <= (others => '0');
+			memop_out <= MEM_NOP;
+			jmpop_out <= JMP_NOP;
+			wbop_out <= WB_NOP;
 
 		elsif rising_edge(clk) then
 
-                        exec_op <= exec_op_next;
-                        state <= state_next;
-                        exec_pc <= exec_pc_next;
-                        pt_reg <= pt_reg_next;
-		
-                end if;
+			if stall = '0' then
+				exec_op <= op;
+
+				if op.cop0 = '1' then
+					state <= COP_OP;
+				else 
+					state <= ALU_OP;
+				end if;
+
+				exec_pc <= pc_in;
+				pc_out <= pc_in;
+				memop_out <= memop_in;
+				jmpop_out <= jmpop_in;
+				wbop_out <= wbop_in;
+			end if;
+		end if;
 	end process;
 
 	rs <= exec_op.rs;
@@ -117,29 +120,6 @@ begin  -- rtl
 		alu_B <= (others => '0');
 		result := (others => '0');
 		temp := (others => '0');
-
-                exec_op_next <= exec_op;
-                state_next <= state;
-                exec_pc_next <= exec_pc;
-                pt_reg_next <= pt_reg;
-
-                if stall = '0' then
-                    exec_op_next <= op; 
-                    if op.cop0 = '1' then
-                            state_next <= COP_OP;
-                    else 
-                            state_next <= ALU_OP;
-                    end if;
-                    exec_pc_next <= pc_in;
-                    pt_reg_next.memop <= memop_in;
-                    pt_reg_next.jmpop <= jmpop_in;
-                    pt_reg_next.wbop <= wbop_in;
-                end if;
-
-                pc_out <= exec_pc;
-                memop_out <= pt_reg.memop;
-                jmpop_out <= pt_reg.jmpop;
-                wbop_out <= pt_reg.wbop;
 		
 		case state is
 			when NO_OP =>

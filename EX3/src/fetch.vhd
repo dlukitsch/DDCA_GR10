@@ -33,8 +33,7 @@ architecture rtl of fetch is
     end component;
 
     signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
-    signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0);
-    signal stall_old : std_logic;
+    signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
 
 begin  -- rtl
 
@@ -53,11 +52,11 @@ begin  -- rtl
             pc <= (others => '0');
             instr_old <= instr_imem;
         elsif rising_edge(clk) then
-            if stall = '0' then
+            --if stall = '0' then
                 pc <= pc_next;
-				-- save old instruction for possible stall
-				instr_old <= instr_imem;               
-            end if;
+	    -- save old instruction for possible stall
+		instr_old <= instr_imem;
+            --end if;
         end if;
 
     end process;

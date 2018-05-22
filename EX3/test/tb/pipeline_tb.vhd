@@ -67,6 +67,7 @@ begin
     begin
         
         mem_in.busy <= mem_out.rd;
+--        mem_in.busy <= '0';
         mem_in.rddata <= (others => '0');
         ocram_wr <= '0';
         if mem_out.address(ADDR_WIDTH-1 downto ADDR_WIDTH-2) = "00" then

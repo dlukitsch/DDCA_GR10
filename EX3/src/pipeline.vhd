@@ -161,6 +161,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => stall_sync,
+		--stall => mem_in.busy,
 		pcsrc => pcsrc_fetch,
 		pc_in => pc_in_fetch,
 		pc_out => pc_out_fetch,
@@ -172,6 +173,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => stall_sync,
+	        --stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_fetch,
 		instr => instr_fetch,
@@ -192,6 +194,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => stall_sync,
+		--stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		pc_in => pc_out_decode,
 		op => exec_op_decode,
@@ -223,6 +226,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => stall_sync,
+		--stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
 		jmp_op => jmpop_out_exec,
@@ -252,6 +256,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => stall_sync,
+		--stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		op => wbop_out_mem,
 		rd_in => rd_out_mem,

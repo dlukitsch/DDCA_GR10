@@ -77,8 +77,8 @@ architecture rtl of mem is
         neg        : std_logic;
     end record;
     
-    signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS := ((others => '0'),(others => '0'),(others => '0'),(others => '0'),WB_NOP);
-    signal int_reg, int_reg_next : INTERNAL_REGISTERS := (MEM_NOP,JMP_NOP,(others => '0'),'0','0');
+    signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS;
+    signal int_reg, int_reg_next : INTERNAL_REGISTERS;
     signal memu_op : mem_op_type; 
 
 begin -- rtl
@@ -118,8 +118,10 @@ begin -- rtl
             int_reg.zero <= '0';
             int_reg.neg <= '0';
         elsif rising_edge(clk) then
-            pt_reg <= pt_reg_next;
-            int_reg <= int_reg_next;
+            if stall = '0' then
+                pt_reg <= pt_reg_next;
+                int_reg <= int_reg_next;
+            end if;
         end if;
 
     end process;
@@ -127,21 +129,17 @@ begin -- rtl
     output : process(all)
     begin
 
-        pt_reg_next <= pt_reg;
-        int_reg_next <= int_reg;
-        
-        if stall = '0' then
-            pt_reg_next.pc          <= pc_in;
-            pt_reg_next.rd          <= rd_in;
-            pt_reg_next.aluresult   <= aluresult_in;
-            pt_reg_next.new_pc      <= new_pc_in;
-            pt_reg_next.wbop        <= wbop_in;
-            int_reg_next.mem_op <= mem_op;
-            int_reg_next.jmp_op <= jmp_op;
-            int_reg_next.wrdata <= wrdata;
-            int_reg_next.zero <= zero;
-            int_reg_next.neg <= neg;
-        end if;
+        pt_reg_next.pc          <= pc_in;
+        pt_reg_next.rd          <= rd_in;
+        pt_reg_next.aluresult   <= aluresult_in;
+        pt_reg_next.new_pc      <= new_pc_in;
+        pt_reg_next.wbop        <= wbop_in;
+
+        int_reg_next.mem_op <= mem_op;
+        int_reg_next.jmp_op <= jmp_op;
+        int_reg_next.wrdata <= wrdata;
+        int_reg_next.zero <= zero;
+        int_reg_next.neg <= neg;
         
         pc_out          <= pt_reg.pc;
         rd_out          <= pt_reg.rd;

@@ -72,7 +72,8 @@ architecture rtl of decode is
 	signal rddata1, rddata2 : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal rdaddr1, rdaddr2 : std_logic_vector(REG_BITS-1 downto 0);
 	
-	signal instr_next : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
+	signal instr_next, instr_reg, instr_reg_next : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
+        signal pc_reg, pc_reg_next : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	
 begin  -- rtl
 
@@ -94,11 +95,11 @@ begin  -- rtl
 	begin
 		if reset = '0' or flush = '1' then
 			-- insert NOPs
-			instr_next <= (others => '0');
-			pc_out <= (others => '0');
-		elsif rising_edge(clk) and stall = '0' then
-			instr_next <= instr;
-			pc_out <= pc_in;
+			instr_reg <= (others => '0');
+			pc_reg <= (others => '0');
+		elsif rising_edge(clk) then
+			instr_reg <= instr_reg_next;
+			pc_reg <= pc_reg_next;
 		end if;
 	end process;
 	
@@ -108,15 +109,26 @@ begin  -- rtl
 		variable imm : std_logic_vector(15 downto 0) := (others => '0');
 		variable address : std_logic_vector(25 downto 0) := (others => '0');
 	begin
-		opcode := instr_next(31 downto 26);
-		rs := instr_next(25 downto 21);
-		rt := instr_next(20 downto 16);
-		rd_r := instr_next(15 downto 11);
-		rd_i := instr_next(20 downto 16);
-		shamt := instr_next(10 downto 6);
-		func := instr_next(5 downto 0);
-		imm := instr_next(15 downto 0);
-		address := instr_next(25 downto 0);
+
+                instr_reg_next <= instr_reg;
+                pc_reg_next <= pc_reg;
+
+                if stall = '0' then
+                    instr_reg_next <= instr;
+                    pc_reg_next <= pc_in;
+                end if;                
+
+                pc_out <= pc_reg;
+
+		opcode := instr_reg(31 downto 26);
+		rs := instr_reg(25 downto 21);
+		rt := instr_reg(20 downto 16);
+		rd_r := instr_reg(15 downto 11);
+		rd_i := instr_reg(20 downto 16);
+		shamt := instr_reg(10 downto 6);
+		func := instr_reg(5 downto 0);
+		imm := instr_reg(15 downto 0);
+		address := instr_reg(25 downto 0);
 		
 		exec_op <= EXEC_NOP;
 		cop0_op <= COP0_NOP;
@@ -128,7 +140,7 @@ begin  -- rtl
 		rdaddr1 <= instr(25 downto 21);
 		rdaddr2 <= instr(20 downto 16);
 		
-		if instr_next = x"00000000" then
+		if instr_reg = x"00000000" then
 			exec_op <= EXEC_NOP;
 			cop0_op <= COP0_NOP;
 			jmp_op <= JMP_NOP;
