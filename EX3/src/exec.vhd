@@ -57,7 +57,14 @@ architecture rtl of exec is
 	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;
-
+	
+	function adder (
+		signal a  :  unsigned
+		) return std_logic_vector is
+	begin
+		return std_logic_vector(a + 4);
+	end adder;
+	
 begin  -- rtl
 	
 	sync : process(all)
@@ -108,6 +115,7 @@ begin  -- rtl
 	state_machine : process(all)
 	variable temp : std_logic_vector(PC_WIDTH downto 0) := (others => '0');
 	variable result : std_logic_vector(DATA_WIDTH-1 downto 0):= (others => '0');
+	variable add_pc : std_logic_vector(PC_WIDTH -1 downto 0);
 	begin
 		aluresult <= (others => '0');
 		wrdata <= (others => '0');
@@ -134,19 +142,21 @@ begin  -- rtl
 				end if;
 
 				if exec_op.branch = '1' then
+				
 					alu_A <= exec_op.readdata1;
 					alu_B <= exec_op.readdata2;
 					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
+					
 					if exec_op.regdst = '1' then
-						result(PC_WIDTH-1 downto 0) := std_logic_vector(unsigned(exec_pc) + 4);
+						result(PC_WIDTH-1 downto 0) := pc_in;
 					end if;
 
 				elsif exec_op.link = '1' then
 					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
 
 					if exec_op.regdst = '1' then
-						alu_A(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(exec_pc) + 4);
+						alu_A(PC_WIDTH-1 downto 0) <= pc_in;
 						result := alu_R;
 					end if;
 
