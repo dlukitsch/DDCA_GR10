@@ -1,10 +1,10 @@
 all: compile
 
 compile: 
-	/opt/intelFPGA/modelsim_ase/bin/vsim -c -do "do scripts/compile.do;quit -f"
+	vsim -c -do "do scripts/compile.do;quit -f"
 
 sim_alu: 
-	/opt/intelFPGA/modelsim_ase/bin/vsim -c -do "do scripts/sim_alu.do;run 100 us;quit -f"
+	vsim -c -do "do scripts/sim_alu.do;run 100 us;quit -f"
 
 clean:
 	rm -fr work
