@@ -119,28 +119,28 @@ architecture rtl of pipeline is
 	end component;
 	
 	signal pcsrc_fetch : std_logic;
-	signal pc_in_fetch, pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0);
+	signal pc_in_fetch, pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	signal instr_fetch : std_logic_vector(INSTR_WIDTH-1 downto 0);
 	
-	signal wraddr_decode : std_logic_vector(REG_BITS-1 downto 0);
-	signal wrdata_decode : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal regwrite_decode : std_logic;
-	signal pc_out_decode : std_logic_vector(PC_WIDTH-1 downto 0);
+	signal wraddr_decode : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal wrdata_decode : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+	signal regwrite_decode : std_logic := '0';
+	signal pc_out_decode : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	signal exec_op_decode : exec_op_type;
 	signal jmp_op_decode : jmp_op_type;
 	signal mem_op_decode : mem_op_type;
 	signal wb_op_decode : wb_op_type;
 	
-	signal pc_out_exec, new_pc_exec : std_logic_vector(PC_WIDTH-1 downto 0);
-	signal rd_exec: std_logic_vector(REG_BITS-1 downto 0);
+	signal pc_out_exec, new_pc_exec : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
+	signal rd_exec: std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	signal aluresult_exec, wrdata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal zero_exec, neg_exec : std_logic;
 	signal memop_out_exec : mem_op_type; 
 	signal jmpop_out_exec : jmp_op_type;
 	signal wbop_out_exec : wb_op_type;
 	
-	signal rd_out_mem : std_logic_vector(REG_BITS-1 downto 0);
-	signal aluresult_out_mem, memresult_mem : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal rd_out_mem : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
+	signal aluresult_out_mem, memresult_mem : std_logic_vector(DATA_WIDTH-1 downto 0)  := (others => '0');
 	signal wbop_out_mem : wb_op_type;
 	
 	signal reset_sync : std_logic := '1';
