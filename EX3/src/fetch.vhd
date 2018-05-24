@@ -62,9 +62,9 @@ begin  -- rtl
 				
             stall_old <= stall;
 				
-				 if stall_old = '0' then
-					  -- save old instruction for possible stall
-					  instr_old <= instr;
+	    if stall_old = '0' then
+		-- save old instruction for possible stall
+	        instr_old <= instr;
             end if;
 				
         end if;
@@ -76,12 +76,12 @@ begin  -- rtl
              
         pc_next <= pc;
 
-        --select next program counter just if there is no stall
-			if pcsrc = '1' then
-					pc_next <= pc_in;
-			else
-					pc_next <= std_logic_vector(unsigned(pc) + 4);
-			end if;
+        --select next program counter
+	if pcsrc = '1' then
+		pc_next <= pc_in;
+	else
+		pc_next <= std_logic_vector(unsigned(pc) + 4);
+	end if;
         
         pc_out <= pc_next;
         

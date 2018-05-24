@@ -66,7 +66,7 @@ begin
         q => ocram_data
     );
 
-    --mem_in.busy <= mem_out.rd;
+    mem_in.busy <= mem_out.rd;
 
     iomux : process(all)
     begin
@@ -83,7 +83,7 @@ begin
 
     stimulus : process
     begin
-        mem_in.busy <= '0';
+--        mem_in.busy <= '0';
 --        mem_in.rddata <= (others => '0');
         reset <= '0';
         wait for 2*CLK_PERIOD;
@@ -92,10 +92,10 @@ begin
 --        mem_in.busy <= '1';
 --        wait for 2*CLK_PERIOD;
 --        mem_in.busy <= '0';
-        wait for 45.5*CLK_PERIOD;
-        mem_in.busy <= '1';
-        wait for 1*CLK_PERIOD;
-        mem_in.busy <= '0';
+--        wait for 45.5*CLK_PERIOD;
+--        mem_in.busy <= '1';
+--        wait for 1*CLK_PERIOD;
+--        mem_in.busy <= '0';
         wait;  
     end process;
 

@@ -1,7 +1,7 @@
 
-VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
+#VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
 #VSIM=/opt/intelFPGA/modelsim_ase/bin/vsim
-#VSIM=~/intelFPGA_lite/17.1/modelsim_ase/linuxaloem/vsim
+VSIM=~/intelFPGA_lite/17.1/modelsim_ase/linuxaloem/vsim
 #VSIM=vsim
 
 compile_memu: 
