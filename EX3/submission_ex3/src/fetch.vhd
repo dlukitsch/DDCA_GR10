@@ -32,8 +32,9 @@ architecture rtl of fetch is
 
     end component;
 
-    signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal pc, pc_next : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
     signal instr_old, instr_imem : std_logic_vector(INSTR_WIDTH-1 downto 0) := (others => '0');
+    signal stall_old : std_logic;
 
 begin  -- rtl
 
@@ -49,14 +50,23 @@ begin  -- rtl
     begin
 
         if reset = '0' then
+		  
             pc <= (others => '0');
-            instr_old <= instr_imem;
+            instr_old <= (others => '0');
+				
         elsif rising_edge(clk) then
+		  
             if stall = '0' then
                 pc <= pc_next;
             end if;
-	    -- save old instruction for possible stall
-	    instr_old <= instr_imem;
+				
+            stall_old <= stall;
+				
+				 if stall_old = '0' then
+					  -- save old instruction for possible stall
+					  instr_old <= instr;
+            end if;
+				
         end if;
 
     end process;
@@ -67,13 +77,11 @@ begin  -- rtl
         pc_next <= pc;
 
         --select next program counter just if there is no stall
-        --if stall = '0' then
-            if pcsrc = '1' then
-                    pc_next <= pc_in;
-            else
-                    pc_next <= std_logic_vector(unsigned(pc) + 4);
-            end if;
-        --end if;
+			if pcsrc = '1' then
+					pc_next <= pc_in;
+			else
+					pc_next <= std_logic_vector(unsigned(pc) + 4);
+			end if;
         
         pc_out <= pc_next;
         
@@ -84,9 +92,9 @@ begin  -- rtl
         end if;
 
         instr <= instr_imem;
-
+		  
         --on stall, output old instruction while new instruction is already loaded from imem
-        if stall = '1' then
+        if stall_old = '1' then
             instr <= instr_old;
         end if;
  

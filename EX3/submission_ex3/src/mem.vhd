@@ -77,7 +77,7 @@ architecture rtl of mem is
         neg        : std_logic;
     end record;
     
-    signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS;
+    signal pt_reg, pt_reg_next : PASSTHROUGH_REGISTERS := ((others => '0'), (others => '0'),(others => '0'),(others => '0'),WB_NOP);
     signal int_reg, int_reg_next : INTERNAL_REGISTERS;
     signal memu_op : mem_op_type; 
 
@@ -121,6 +121,11 @@ begin -- rtl
             if stall = '0' then
                 pt_reg <= pt_reg_next;
                 int_reg <= int_reg_next;
+					memu_op <= mem_op;
+				else --ensure that no memory operation is asserted on stall
+					memu_op.memread <= '0'; 
+					memu_op.memwrite <= '0';
+					memu_op.memtype <= int_reg.mem_op.memtype; 
             end if;
         end if;
 
@@ -153,15 +158,6 @@ begin -- rtl
             pt_reg_next.aluresult <= (others => '0');
             pt_reg_next.new_pc <= (others => '0');
             pt_reg_next.wbop <= WB_NOP;
-        end if;
-
-        --ensure that no memory operation is asserted on stall
-        if stall = '1' then
-            memu_op.memread <= '0';
-            memu_op.memwrite <= '0';
-            memu_op.memtype <= int_reg.mem_op.memtype;
-        else
-            memu_op <= int_reg.mem_op;
         end if;
 
     end process;
