@@ -52,8 +52,8 @@ architecture rtl of exec is
 	signal state: EXEC_TYPE := NO_OP;
 
 	signal aluop : alu_op_type;
-	signal alu_A : std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal alu_B : std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal alu_A : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
+	signal alu_B : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
 	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;

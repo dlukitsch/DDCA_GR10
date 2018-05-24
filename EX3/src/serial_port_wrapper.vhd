@@ -31,6 +31,7 @@ architecture behavior of serial_port_wrapper is
 	signal tx_data : std_logic_vector(7 downto 0);
 	signal tx_wr : std_logic;
 	signal tx_free : std_logic;
+	signal tx_full : std_logic;
 	signal rx_data : std_logic_vector(7 downto 0);
 	signal rx_rd : std_logic;
 	signal rx_data_empty : std_logic;
@@ -52,14 +53,16 @@ begin  -- behavior
 			res_n		  => res_n,
 			tx_data		  => tx_data,
 			tx_wr		  => tx_wr,
-			tx_free       => tx_free,
+			tx_full => tx_full,
 			rx_data		  => rx_data,
 			rx_rd		  => rx_rd,
-			rx_data_empty => rx_data_empty,
-			rx_data_full  => rx_data_full,
+			rx_empty => rx_data_empty,
+			rx_full  => rx_data_full,
 			rx			  => rx,
 			tx			  => tx);
 
+	tx_free <= not tx_full;
+	
 	sync: process (clk, res_n)
 	begin  -- process sync
 		if res_n = '0' then  				-- asynchronous reset (active low)
