@@ -117,18 +117,18 @@ begin -- rtl
             int_reg.wrdata <= (others => '0');
             int_reg.zero <= '0';
             int_reg.neg <= '0';
+			memu_op <= MEM_NOP;
         elsif rising_edge(clk) then
             if stall = '0' then
                 pt_reg <= pt_reg_next;
                 int_reg <= int_reg_next;
-					memu_op <= mem_op;
-				else --ensure that no memory operation is asserted on stall
-					memu_op.memread <= '0'; 
-					memu_op.memwrite <= '0';
-					memu_op.memtype <= int_reg.mem_op.memtype; 
+				memu_op <= mem_op;
+			else --ensure that no memory operation is asserted on stall
+				memu_op.memread <= '0'; 
+				memu_op.memwrite <= '0';
+				memu_op.memtype <= int_reg.mem_op.memtype; 
             end if;
         end if;
-
     end process;
 
     output : process(all)
@@ -145,7 +145,7 @@ begin -- rtl
         int_reg_next.wrdata <= wrdata;
         int_reg_next.zero <= zero;
         int_reg_next.neg <= neg;
-        
+		
         pc_out          <= pt_reg.pc;
         rd_out          <= pt_reg.rd;
         aluresult_out   <= pt_reg.aluresult;
