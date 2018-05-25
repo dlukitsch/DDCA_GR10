@@ -35,7 +35,7 @@ architecture rtl of wb is
         rd        : std_logic_vector(REG_BITS-1 downto 0); 
     end record;
 
-    signal wb_reg, wb_reg_next : WB_REGISTERS;
+    signal wb_reg, wb_reg_next : WB_REGISTERS := (WB_NOP, (others => '0'), (others => '0'),(others => '0'));
 
 begin  -- rtl
 

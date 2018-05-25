@@ -45,7 +45,7 @@ architecture rtl of exec is
 		);
 	end component;
 
-	signal exec_op : exec_op_type;
+	signal exec_op : exec_op_type := EXEC_NOP;
 	signal exec_pc : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 
 	type EXEC_TYPE is (ALU_OP, COP_OP, NO_OP);
@@ -57,13 +57,6 @@ architecture rtl of exec is
 	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;
-	
-	function adder (
-		signal a  :  unsigned
-		) return std_logic_vector is
-	begin
-		return std_logic_vector(a + 4);
-	end adder;
 	
 begin  -- rtl
 	
