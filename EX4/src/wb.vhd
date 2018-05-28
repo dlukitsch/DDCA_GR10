@@ -43,13 +43,14 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            wb_reg.op <= WB_NOP;
-            wb_reg.aluresult <= (others => '0');
-            wb_reg.memresult <= (others => '0');
-            wb_reg.rd <= (others => '0');
+            wb_reg <= (WB_NOP, (others => '0'), (others => '0'), (others => '0'));
         elsif rising_edge(clk) then
             if stall = '0' then
-                wb_reg <= wb_reg_next;
+                if flush = '0' then
+                    wb_reg <= wb_reg_next;
+                else
+                    wb_reg <= (WB_NOP, (others => '0'), (others => '0'), (others => '0'));
+                end if;
             end if;
         end if;
 
@@ -69,13 +70,6 @@ begin  -- rtl
         else
             result <= wb_reg.aluresult;
         end if; 
-
-        if flush = '1' then
-            wb_reg_next.op <= WB_NOP;
-            wb_reg_next.aluresult <= (others => '0');
-            wb_reg_next.memresult <= (others => '0');
-            wb_reg_next.rd <= (others => '0');
-        end if;
 
         regwrite <= wb_reg.op.regwrite;
         rd_out <= wb_reg.rd;

@@ -107,26 +107,24 @@ begin -- rtl
     begin
 
         if reset = '0' then
-            pt_reg.pc <= (others => '0');
-            pt_reg.rd <= (others => '0');
-            pt_reg.aluresult <= (others => '0');
-            pt_reg.new_pc <= (others => '0');
-            pt_reg.wbop <= WB_NOP;
-            int_reg.mem_op <= MEM_NOP;
-            int_reg.jmp_op <= JMP_NOP;
-            int_reg.wrdata <= (others => '0');
-            int_reg.zero <= '0';
-            int_reg.neg <= '0';
-			memu_op <= MEM_NOP;
+            pt_reg <= ((others => '0'), (others => '0'), (others => '0'), (others => '0'), WB_NOP);
+            int_reg <= (MEM_NOP, JMP_NOP, (others => '0'), '0', '0');
+	    memu_op <= MEM_NOP;
         elsif rising_edge(clk) then
             if stall = '0' then
-                pt_reg <= pt_reg_next;
-                int_reg <= int_reg_next;
-				memu_op <= mem_op;
-			else --ensure that no memory operation is asserted on stall
-				memu_op.memread <= '0'; 
-				memu_op.memwrite <= '0';
-				memu_op.memtype <= int_reg.mem_op.memtype; 
+                if flush = '0' then
+                    pt_reg <= pt_reg_next;
+                    int_reg <= int_reg_next;
+                    memu_op <= mem_op;
+                else
+                    pt_reg <= ((others => '0'), (others => '0'), (others => '0'), (others => '0'), WB_NOP);
+                    int_reg <= (MEM_NOP, JMP_NOP, (others => '0'), '0', '0');
+                    memu_op <= MEM_NOP;
+                end if;
+            else --ensure that no memory operation is asserted on stall
+                memu_op.memread <= '0'; 
+                memu_op.memwrite <= '0';
+                memu_op.memtype <= int_reg.mem_op.memtype; 
             end if;
         end if;
     end process;
@@ -151,14 +149,6 @@ begin -- rtl
         aluresult_out   <= pt_reg.aluresult;
         new_pc_out      <= pt_reg.new_pc;
         wbop_out        <= pt_reg.wbop;
-
-        if flush = '1' then
-            pt_reg_next.pc <= (others => '0');
-            pt_reg_next.rd <= (others => '0');
-            pt_reg_next.aluresult <= (others => '0');
-            pt_reg_next.new_pc <= (others => '0');
-            pt_reg_next.wbop <= WB_NOP;
-        end if;
 
     end process;
 
