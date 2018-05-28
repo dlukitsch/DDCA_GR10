@@ -16,6 +16,13 @@ end pipeline;
 
 architecture rtl of pipeline is
 	
+        component ctrl is
+            port (
+                pcsrc : in std_logic;
+                flush_branch : out std_logic
+            );
+        end component;
+
 	component fetch is
 	port (
 		clk, reset : in	 std_logic;
@@ -144,6 +151,8 @@ architecture rtl of pipeline is
 	signal wbop_out_mem : wb_op_type;
 	
 	signal reset_sync : std_logic := '1';
+        
+        signal flush_branch : std_logic;
 	
 begin  -- rtl
 	
@@ -153,6 +162,12 @@ begin  -- rtl
 			reset_sync <= reset; -- get new data
 		end if;
 	end process;
+
+        ctrl_inst : ctrl
+        port map (
+            pcsrc => pcsrc_fetch,
+            flush_branch => flush_branch
+        );
 	
 	fetch_inst : fetch
 	port map(
@@ -169,8 +184,8 @@ begin  -- rtl
 	port map(
 		clk => clk,
 		reset => reset_sync,
-	    stall => mem_in.busy,
-		flush => '0', -- this pin has to be implemented at exercise 4
+	        stall => mem_in.busy,
+		flush => flush_branch,
 		pc_in => pc_out_fetch,
 		instr => instr_fetch,
 		wraddr => wraddr_decode,
@@ -190,7 +205,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => '0', -- this pin has to be implemented at exercise 4
+		flush => flush_branch,
 		pc_in => pc_out_decode,
 		op => exec_op_decode,
 		pc_out => pc_out_exec,

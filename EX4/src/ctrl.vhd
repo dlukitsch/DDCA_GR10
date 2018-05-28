@@ -8,13 +8,16 @@ use work.op_pack.all;
 entity ctrl is
 	
 	port (
-		-- define input and output ports as needed
-);
+            pcsrc : in std_logic;
+	    flush_branch : out std_logic
+        );
 
 end ctrl;
 
 architecture rtl of ctrl is
 
 begin  -- rtl
+
+    flush_branch <= pcsrc;
 
 end rtl;
