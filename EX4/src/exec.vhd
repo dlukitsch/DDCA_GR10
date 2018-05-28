@@ -62,7 +62,7 @@ begin  -- rtl
 	
 	sync : process(all)
 	begin
-		if reset = '0' or flush = '1' then
+		if reset = '0' then
 			exec_op <= EXEC_NOP;
 			state <= NO_OP;
 			pc_out <= (others => '0');
@@ -71,21 +71,30 @@ begin  -- rtl
 			wbop_out <= WB_NOP;
 
 		elsif rising_edge(clk) then
-
 			if stall = '0' then
-				exec_op <= op;
+                                if flush = '0' then
+                                    exec_op <= op;
 
-				if op.cop0 = '1' then
-					state <= COP_OP;
-				else 
-					state <= ALU_OP;
-				end if;
+                                    if op.cop0 = '1' then
+                                            state <= COP_OP;
+                                    else 
+                                            state <= ALU_OP;
+                                    end if;
 
-				exec_pc <= pc_in;
-				pc_out <= pc_in;
-				memop_out <= memop_in;
-				jmpop_out <= jmpop_in;
-				wbop_out <= wbop_in;
+                                    exec_pc <= pc_in;
+                                    pc_out <= pc_in;
+                                    memop_out <= memop_in;
+                                    jmpop_out <= jmpop_in;
+                                    wbop_out <= wbop_in;
+                                else
+                                    exec_op <= EXEC_NOP;
+                                    state <= NO_OP;
+                                    exec_pc <= (others => '0');
+                                    pc_out <= (others => '0');
+                                    memop_out <= MEM_NOP;
+                                    jmpop_out <= JMP_NOP;
+                                    wbop_out <= WB_NOP;                                   
+                                end if;
 			end if;
 		end if;
 	end process;

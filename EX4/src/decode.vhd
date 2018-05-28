@@ -92,13 +92,20 @@ begin  -- rtl
 	
 	sync : process(all)
 	begin
-		if reset = '0' or flush = '1' then
+		if reset = '0' then
 			-- insert NOPs
 			instr_next <= (others => '0');
 			pc_out <= (others => '0');
-		elsif rising_edge(clk) and stall = '0' then
-			instr_next <= instr;
-			pc_out <= pc_in;
+		elsif rising_edge(clk) then
+                        if stall = '0' then
+                            if flush = '0' then
+                                instr_next <= instr;
+                                pc_out <= pc_in;
+                            else
+                                instr_next <= (others => '0');
+                                pc_out <= (others => '0');
+                            end if;
+                        end if;
 		end if;
 	end process;
 	
