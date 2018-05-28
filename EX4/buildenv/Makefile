@@ -1,4 +1,4 @@
-PROJECT=fwd
+PROJECT=testctrl
 
 PREFIX=/usr/mips
 
