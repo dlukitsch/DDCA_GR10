@@ -13,9 +13,5 @@ int main() {
 	}
 	putchar('\n');
 
-	for (;;) {
-		putchar(getchar());
-	}
-
 	return 0;
 }
