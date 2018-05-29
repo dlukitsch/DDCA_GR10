@@ -169,7 +169,7 @@ begin  -- rtl
 				elsif exec_op.link = '1' then
 					if forwardA = FWD_ALU then
 						new_pc <= mem_aluresult(PC_WIDTH-1 downto 0);
-					elsif
+					elsif forwardA = FWD_WB then
 						new_pc <= wb_result(PC_WIDTH-1 downto 0);
 					else
 						new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
@@ -210,6 +210,7 @@ begin  -- rtl
 							wrdata <= wb_result;
 						else
 							wrdata <= exec_op.readdata2;
+						end if;
 					end if;
 				end if;
 				

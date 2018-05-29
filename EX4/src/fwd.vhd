@@ -30,14 +30,14 @@ begin
 		forwardA <= FWD_NONE;
 		forwardB <= FWD_NONE;
 		
-		if mem_regwrite and  mem_rd = ex_rs and mem_rd /= zero then
+		if mem_regwrite = '1' and mem_rd = ex_rs and mem_rd /= zero then
 			forwardA <= FWD_ALU;
-		elsif wb_regwrite and wb_rd = ex_rs and wb_rd /= zero then
+		elsif wb_regwrite = '1' and wb_rd = ex_rs and wb_rd /= zero then
 			forwardA <= FWD_WB;
 		end if;
-		if mem_regwrite and  mem_rd = ex_rt and mem_rd /= zero then
+		if mem_regwrite = '1' and  mem_rd = ex_rt and mem_rd /= zero then
 			forwardA <= FWD_ALU;
-		elsif wb_regwrite and wb_rd = ex_rt and wb_rd /= zero then
+		elsif wb_regwrite = '1' and wb_rd = ex_rt and wb_rd /= zero then
 			forwardB <= FWD_WB;
 		end if;
 	end process;
