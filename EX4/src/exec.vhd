@@ -144,9 +144,21 @@ begin  -- rtl
 				end if;
 
 				if exec_op.branch = '1' then
-				
-					alu_A <= exec_op.readdata1;
-					alu_B <= exec_op.readdata2;
+					if forwardA = FWD_ALU then
+						alu_A <= mem_aluresult;
+					elsif forwardA = FWD_WB then
+						alu_A <= wb_result;
+					else
+						alu_A <= exec_op.readdata1;
+					end if;
+					if forwardB = FWD_ALU then
+						alu_B <= mem_aluresult;
+					elsif forwardB = FWD_WB then
+						alu_B <= wb_result;
+					else
+						alu_B <= exec_op.readdata2;
+					end if;
+					
 					temp := std_logic_vector(signed("0" & exec_pc) + signed(exec_op.imm(PC_WIDTH downto 0)));
 					new_pc <= temp(PC_WIDTH-1 downto 0);
 					
@@ -155,26 +167,49 @@ begin  -- rtl
 					end if;
 
 				elsif exec_op.link = '1' then
-					new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
-
+					if forwardA = FWD_ALU then
+						new_pc <= mem_aluresult(PC_WIDTH-1 downto 0);
+					elsif
+						new_pc <= wb_result(PC_WIDTH-1 downto 0);
+					else
+						new_pc <= exec_op.readdata1(PC_WIDTH-1 downto 0);
+					end if;
+					
 					if exec_op.regdst = '1' then
 						alu_A(PC_WIDTH-1 downto 0) <= pc_in;
 						result := alu_R;
 					end if;
 
 				else
-					if exec_op.useimm = '1' then
-						alu_A <= exec_op.readdata1;
-						alu_B <= exec_op.imm;
+					if forwardA = FWD_ALU then
+						alu_A <= mem_aluresult;
+					elsif forwardA = FWD_WB then
+						alu_A <= wb_result;
 					else
 						alu_A <= exec_op.readdata1;
-						alu_B <= exec_op.readdata2;
+					end if;
+					
+					if exec_op.useimm = '1' then
+						alu_B <= exec_op.imm;
+					else
+						if forwardB = FWD_ALU then
+							alu_B <= mem_aluresult;
+						elsif forwardB = FWD_WB then
+							alu_B <= wb_result;
+						else
+							alu_B <= exec_op.readdata2;
+						end if;
 					end if;
 
 					result := alu_R;
 
 					if exec_op.regdst = '0' then
-						wrdata <= exec_op.readdata2;
+						if forwardB = FWD_ALU then
+							wrdata <= mem_aluresult;
+						elsif forwardB = FWD_WB then
+							wrdata <= wb_result;
+						else
+							wrdata <= exec_op.readdata2;
 					end if;
 				end if;
 				
