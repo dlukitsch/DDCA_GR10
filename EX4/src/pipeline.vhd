@@ -16,12 +16,25 @@ end pipeline;
 
 architecture rtl of pipeline is
 	
-        component ctrl is
-            port (
-                pcsrc : in std_logic;
-                flush_branch : out std_logic
-            );
-        end component;
+	component fwd is
+	port (
+		ex_rs : in std_logic_vector(REG_BITS-1 downto 0);
+		ex_rt : in std_logic_vector(REG_BITS-1 downto 0);
+		mem_rd : in std_logic_vector(REG_BITS-1 downto 0);
+		wb_rd : in std_logic_vector(REG_BITS-1 downto 0);
+		mem_regwrite : in std_logic;
+		wb_regwrite : in std_logic;
+		forwardA : out fwd_type;
+		forwardB : out fwd_type);
+		
+	end component;
+	
+	component ctrl is
+		port (
+			pcsrc : in std_logic;
+			flush_branch : out std_logic );
+			
+	end component;
 
 	component fetch is
 	port (
@@ -150,29 +163,43 @@ architecture rtl of pipeline is
 	signal aluresult_out_mem, memresult_mem : std_logic_vector(DATA_WIDTH-1 downto 0)  := (others => '0');
 	signal wbop_out_mem : wb_op_type;
 	
-	signal reset_sync : std_logic := '1';
-        
-        signal flush_branch : std_logic;
+	--signal reset_sync : std_logic := '1'; 
+    signal flush_branch : std_logic;
+	
+	signal rs_exec, rt_exec : std_logic_vector(REG_BITS-1 downto 0);
+	signal forwardA, forwardB : fwd_type;
 	
 begin  -- rtl
 	
-	synchronizer : process(all)
-	begin
-		if rising_edge(clk) then
-			reset_sync <= reset; -- get new data
-		end if;
-	end process;
+	--synchronizer : process(all)
+	--begin
+	--	if rising_edge(clk) then
+	--		reset_sync <= reset; -- get new data
+	--	end if;
+	--end process;
 
-        ctrl_inst : ctrl
-        port map (
-            pcsrc => pcsrc_fetch,
-            flush_branch => flush_branch
-        );
+	fwd_inst : fwd
+	port map(
+		ex_rs => rs_exec,
+		ex_rt => rt_exec,
+		mem_rd => rd_out_mem,
+		wb_rd => wraddr_decode,
+		mem_regwrite => wbop_out_mem.regwrite,
+		wb_regwrite => regwrite_decode,
+		forwardA => forwardA,
+		forwardB => forwardB
+	);
+	
+	ctrl_inst : ctrl
+	port map (
+		pcsrc => pcsrc_fetch,
+		flush_branch => flush_branch
+	);
 	
 	fetch_inst : fetch
 	port map(
 		clk => clk,
-		reset => reset_sync,
+		reset => reset,
 		stall => mem_in.busy,
 		pcsrc => pcsrc_fetch,
 		pc_in => pc_in_fetch,
@@ -183,8 +210,8 @@ begin  -- rtl
 	decode_inst : decode
 	port map(
 		clk => clk,
-		reset => reset_sync,
-	        stall => mem_in.busy,
+		reset => reset,
+	    stall => mem_in.busy,
 		flush => flush_branch,
 		pc_in => pc_out_fetch,
 		instr => instr_fetch,
@@ -203,15 +230,15 @@ begin  -- rtl
 	exec_inst : exec
 	port map(
 		clk => clk,
-		reset => reset_sync,
+		reset => reset,
 		stall => mem_in.busy,
 		flush => flush_branch,
 		pc_in => pc_out_decode,
 		op => exec_op_decode,
 		pc_out => pc_out_exec,
 		rd => rd_exec,
-		rs => open, -- this pin has to be implemented at exercise 4
-		rt => open, -- this pin has to be implemented at exercise 4
+		rs => rs_exec,
+		rt => rt_exec,
 		aluresult => aluresult_exec,
 		wrdata => wrdata_exec,
 		zero => zero_exec,
@@ -223,18 +250,18 @@ begin  -- rtl
 		jmpop_out => jmpop_out_exec,
 		wbop_in => wb_op_decode,
 		wbop_out => wbop_out_exec,
-		forwardA => FWD_NONE, -- following pins have to be implemented at exercise 4
-		forwardB => FWD_NONE,
+		forwardA => forwardA,
+		forwardB => forwardB,
 		cop0_rddata => (others => '0'),
-		mem_aluresult => (others => '0'),
-		wb_result => (others => '0'),
+		mem_aluresult => aluresult_out_mem,
+		wb_result => wrdata_decode,
 		exc_ovf => open
 	);
 	
 	mem_inst : mem
 	port map (
 		clk => clk,
-		reset => reset_sync,
+		reset => reset,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
@@ -263,7 +290,7 @@ begin  -- rtl
 	wb_inst : wb
 	port map (
 		clk => clk,
-		reset => reset_sync,
+		reset => reset,
 		stall => mem_in.busy,
 		flush => '0', -- this pin has to be implemented at exercise 4
 		op => wbop_out_mem,
