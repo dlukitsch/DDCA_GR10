@@ -544,7 +544,6 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2(7 downto 0) <= rddata2(7 downto 0);
 					calc_imm(imm, exec_op.imm);
-					exec_op.rd <= rd_i;
 					exec_op.rt <= rd_i;
 					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
@@ -555,7 +554,6 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2(15 downto 0) <= rddata2(15 downto 0);
 					calc_imm(imm, exec_op.imm);
-					exec_op.rd <= rd_i;
 					exec_op.rt <= rd_i;
 					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
@@ -566,7 +564,6 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2 <= rddata2;
 					calc_imm(imm, exec_op.imm);
-					exec_op.rd <= rd_i;
 					exec_op.rt <= rd_i;
 					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
