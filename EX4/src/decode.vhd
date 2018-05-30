@@ -204,15 +204,12 @@ begin  -- rtl
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
 							exec_op.rs <= rs;
-							exec_op.rt <= rt;
-							exec_op.rd <= rd_r;
 							exec_op.link <= '1';
 							jmp_op <= JMP_JMP;
 						when "001001" => --JALR
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
 							exec_op.rs <= rs;
-							exec_op.rt <= rt;
 							exec_op.rd <= rd_r;
 							exec_op.regdst <= '1';
 							exec_op.link <= '1';
@@ -319,6 +316,7 @@ begin  -- rtl
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
 							shift_imm(imm, exec_op.imm);
+							exec_op.rs <= rs;
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							jmp_op <= JMP_BLTZ;
@@ -326,6 +324,7 @@ begin  -- rtl
 							exec_op.aluop <= ALU_NOP;
 							exec_op.readdata1 <= rddata1;
 							shift_imm(imm, exec_op.imm);
+							exec_op.rs <= rs;
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							jmp_op <= JMP_BGEZ;
@@ -334,6 +333,7 @@ begin  -- rtl
 							exec_op.readdata1 <= rddata1;
 							exec_op.rd <= "11111"; --register 31 to store the pc to
 							shift_imm(imm, exec_op.imm);
+							exec_op.rs <= rs;
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							exec_op.regdst <= '1';
@@ -344,6 +344,7 @@ begin  -- rtl
 							exec_op.readdata1 <= rddata1;
 							exec_op.rd <= "11111"; --register 31 to store the pc to
 							shift_imm(imm, exec_op.imm);
+							exec_op.rs <= rs;
 							exec_op.useimm <= '1';
 							exec_op.branch <= '1';
 							exec_op.regdst <= '1';
@@ -370,6 +371,8 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2 <= rddata2;
 					shift_imm(imm, exec_op.imm);
+					exec_op.rs <= rs;
+					exec_op.rt <= rd_i;
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BEQ;
@@ -378,6 +381,8 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2 <= rddata2;
 					shift_imm(imm, exec_op.imm);
+					exec_op.rs <= rs;
+					exec_op.rt <= rd_i;
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BNE;
@@ -385,6 +390,7 @@ begin  -- rtl
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1 <= rddata1;
 					shift_imm(imm, exec_op.imm);
+					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BLEZ;
@@ -392,6 +398,7 @@ begin  -- rtl
 					exec_op.aluop <= ALU_NOP;
 					exec_op.readdata1 <= rddata1;
 					shift_imm(imm, exec_op.imm);
+					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
 					exec_op.branch <= '1';
 					jmp_op <= JMP_BGTZ;
@@ -400,6 +407,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					exec_op.ovf <= '1';
@@ -409,6 +417,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -417,6 +426,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -425,6 +435,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.imm(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -433,6 +444,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.imm(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -441,6 +453,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.imm(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -449,6 +462,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.imm(15 downto 0) <= imm;
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -459,7 +473,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					wb_op.regwrite <= '1';
 				when "010000" =>
-					case rs is  --not implemented yet --> all NOPs
+					case rs is  --not implemented yet --> all NOPs --> do not forget the forwarding !!!
 						when "00000" => --MFC0
 						when "00100" => --MTC0
 						when others =>
@@ -470,6 +484,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -481,6 +496,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -492,6 +508,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -503,6 +520,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -514,6 +532,7 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					calc_imm(imm, exec_op.imm);
 					exec_op.rd <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.regdst <= '1';
 					exec_op.useimm <= '1';
 					wb_op.regwrite <= '1';
@@ -525,6 +544,9 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2(7 downto 0) <= rddata2(7 downto 0);
 					calc_imm(imm, exec_op.imm);
+					exec_op.rd <= rd_i;
+					exec_op.rt <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
 					mem_op.memwrite <= '1';
 					mem_op.memtype <= MEM_B;
@@ -533,6 +555,9 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2(15 downto 0) <= rddata2(15 downto 0);
 					calc_imm(imm, exec_op.imm);
+					exec_op.rd <= rd_i;
+					exec_op.rt <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
 					mem_op.memwrite <= '1';
 					mem_op.memtype <= MEM_H;
@@ -541,6 +566,9 @@ begin  -- rtl
 					exec_op.readdata1 <= rddata1;
 					exec_op.readdata2 <= rddata2;
 					calc_imm(imm, exec_op.imm);
+					exec_op.rd <= rd_i;
+					exec_op.rt <= rd_i;
+					exec_op.rs <= rs;
 					exec_op.useimm <= '1';
 					mem_op.memwrite <= '1';
 					mem_op.memtype <= MEM_W;
