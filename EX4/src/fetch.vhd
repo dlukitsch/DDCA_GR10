@@ -76,7 +76,7 @@ begin  -- rtl
              
         pc_next <= pc;
 
-        --select next program counter just if there is no stall
+        --select next program counter
 			if pcsrc = '1' then
 					pc_next <= pc_in;
 			else

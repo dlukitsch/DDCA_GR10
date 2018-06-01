@@ -475,7 +475,9 @@ begin  -- rtl
 				when "010000" =>
 					case rs is  --not implemented yet --> all NOPs --> do not forget the forwarding !!!
 						when "00000" => --MFC0
+                                                    exec_op.cop0 <= '1';
 						when "00100" => --MTC0
+                                                    exec_op.cop0 <= '1';
 						when others =>
 							exc_dec <= '1';
 					end case;
