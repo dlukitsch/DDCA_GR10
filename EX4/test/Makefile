@@ -1,8 +1,8 @@
 
-VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
+#VSIM=~/intelFPGA/17.1/modelsim_ase/linuxaloem/vsim
 #VSIM=/opt/intelFPGA/modelsim_ase/bin/vsim
 #VSIM=~/intelFPGA_lite/17.1/modelsim_ase/linuxaloem/vsim
-#VSIM=vsim
+VSIM=vsim
 
 compile_memu: 
 	$(VSIM) -c -do "do scripts/compile_memu.do;quit -f"
@@ -40,6 +40,8 @@ sim_pipeline: compile_pipeline
 sim_dec_exec:
 	$(VSIM) -do "do scripts/sim_dec_exec.do" 
 
+sim_mimi: compile_pipeline
+	$(VSIM) -do "do scripts/sim_mimi.do"
 clean:
 	rm -fr work
 	rm -f transcript
