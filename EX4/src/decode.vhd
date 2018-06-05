@@ -473,14 +473,18 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					wb_op.regwrite <= '1';
 				when "010000" =>
-					case rs is  --not implemented yet --> all NOPs --> do not forget the forwarding !!!
+					case rs is  --> do not forget the forwarding !!!
 						when "00000" => --MFC0
-								cop_op.wr <= '0';
-								cop_op.addr <= rd_r;
+								cop0_op.wr <= '0';
+								cop0_op.addr <= rd_r;
                                 exec_op.cop0 <= '1';
+								exec_op.rd <= rd_r;
+								exec_op.rt <= rt;
 						when "00100" => --MTC0
-								cop_op.wr <= '1';
-								cop_op.addr <= rd_r;
+								cop0_op.wr <= '1';
+								cop0_op.addr <= rd_r;
+								exec_op.rd <= rd_r;
+								exec_op.rt <= rt;
                                 exec_op.cop0 <= '1';
 						when others =>
 							exc_dec <= '1';

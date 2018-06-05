@@ -31,9 +31,19 @@ architecture rtl of pipeline is
 	
 	component ctrl is
 		port (
-			pcsrc : in std_logic;
-			flush_branch : out std_logic );
-			
+			clk : in std_logic;
+            reset : in std_logic;
+            cop_op : in cop0_op_type; --from decode
+            wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
+            pc : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+            pcsrc : in std_logic; --from mem
+            exc_ovf : in std_logic; --from exec
+            intr : in std_logic_vector(INTR_COUNT-1 downto 0);
+            rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
+            flush_decode : out std_logic;
+            flush_exec : out std_logic;
+            flush_mem : out std_logic
+		);	
 	end component;
 
 	component fetch is
@@ -169,6 +179,10 @@ architecture rtl of pipeline is
 	signal rs_exec, rt_exec : std_logic_vector(REG_BITS-1 downto 0);
 	signal forwardA, forwardB : fwd_type;
 	
+	signal cop0_op_decode : cop0_op_type;
+	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
+	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
+	
 begin  -- rtl
 	
 	synchronizer : process(all)
@@ -192,8 +206,18 @@ begin  -- rtl
 	
 	ctrl_inst : ctrl
 	port map (
+		clk => clk,
+		reset => reset_sync ,
+		cop_op => cop0_op_decode,
+		wrdata => exec_op_decode.readdata2,
+		pc => pc_out_decode,
 		pcsrc => pcsrc_fetch,
-		flush_branch => flush_branch
+		exc_ovf => exc_ovf_exec,
+		intr => intr,
+		rddata => cop0_rddata_exec,
+		flush_decode => flush_decode,
+		flush_exec => flush_exec,
+		flush_mem => flush_mem
 	);
 	
 	fetch_inst : fetch
@@ -212,7 +236,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 	    stall => mem_in.busy,
-		flush => flush_branch,
+		flush => flush_decode,
 		pc_in => pc_out_fetch,
 		instr => instr_fetch,
 		wraddr => wraddr_decode,
@@ -220,7 +244,7 @@ begin  -- rtl
 		regwrite => regwrite_decode,
 		pc_out => pc_out_decode,
 		exec_op => exec_op_decode,
-		cop0_op => open, -- this pin has to be implemented at exercise 4
+		cop0_op => cop0_op_decode, -- this pin has to be implemented at exercise 4
 		jmp_op => jmp_op_decode,
 		mem_op => mem_op_decode,
 		wb_op => wb_op_decode,
@@ -232,7 +256,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => flush_branch,
+		flush => flush_exec,
 		pc_in => pc_out_decode,
 		op => exec_op_decode,
 		pc_out => pc_out_exec,
@@ -252,10 +276,10 @@ begin  -- rtl
 		wbop_out => wbop_out_exec,
 		forwardA => forwardA,
 		forwardB => forwardB,
-		cop0_rddata => (others => '0'),
+		cop0_rddata => cop0_rddata_exec,
 		mem_aluresult => aluresult_out_mem,
 		wb_result => wrdata_decode,
-		exc_ovf => open
+		exc_ovf => exc_ovf_exec
 	);
 	
 	mem_inst : mem
@@ -263,7 +287,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => '0', -- this pin has to be implemented at exercise 4
+		flush => flush_mem, -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
 		jmp_op => jmpop_out_exec,
 		pc_in => pc_out_exec,
