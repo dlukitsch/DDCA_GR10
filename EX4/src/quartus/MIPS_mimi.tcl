@@ -15,7 +15,7 @@
 
 # Quartus Prime: Generate Tcl File for Project
 # File: MIPS_mimi.tcl
-# Generated on: Thu May 24 15:40:14 2018
+# Generated on: Tue Jun  5 12:13:36 2018
 
 # Load Quartus Prime Tcl Project package
 package require ::quartus::project
@@ -64,6 +64,10 @@ if {$make_assignments} {
 	set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 	set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 	set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+	set_global_assignment -name VHDL_FILE ../serial_port.vhd
+	set_global_assignment -name VHDL_FILE ../fwd.vhd
+	set_global_assignment -name VHDL_FILE ../ctrl.vhd
+	set_global_assignment -name VHDL_FILE ../pll_altera.vhd
 	set_global_assignment -name VHDL_FILE ../wb_ram.vhd
 	set_global_assignment -name VHDL_FILE ../ram_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../sync_pkg.vhd
@@ -76,7 +80,6 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../serial_port_rx_fsm_pkg.vhd
 	set_global_assignment -name VHDL_FILE ../serial_port_rx_fsm.vhd
 	set_global_assignment -name VHDL_FILE ../serial_port_pkg.vhd
-	set_global_assignment -name VHDL_FILE ../serial_port.vhd
 	set_global_assignment -name VHDL_FILE ../serial_port_wrapper.vhd
 	set_global_assignment -name VHDL_FILE ../ocram_altera.vhd
 	set_global_assignment -name VHDL_FILE ../core.vhd
@@ -95,7 +98,21 @@ if {$make_assignments} {
 	set_global_assignment -name VHDL_FILE ../decode.vhd
 	set_global_assignment -name VHDL_FILE ../core_pack.vhd
 	set_global_assignment -name VHDL_FILE ../alu.vhd
-	set_global_assignment -name QIP_FILE pll.qip
+	set_location_assignment PIN_Y2 -to clk_pin
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk_pin
+	set_location_assignment PIN_M23 -to reset_pin
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to reset_pin
+	set_location_assignment PIN_G12 -to rx
+	set_location_assignment PIN_G9 -to tx
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to tx
+	set_location_assignment PIN_M21 -to intr_pin[0]
+	set_location_assignment PIN_N21 -to intr_pin[1]
+	set_location_assignment PIN_R24 -to intr_pin[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[2]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[1]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin[0]
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to intr_pin
 	set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 
 	# Commit assignments
