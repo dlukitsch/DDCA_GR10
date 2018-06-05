@@ -93,7 +93,7 @@ begin  -- rtl
             pcsrc <= '1';
             pc_out <= EXCEPTION_PC;
             flush_exec <= '1';
-            flush_mem <= '1';;
+            flush_mem <= '1';
         end if;
 
         if cop_op.wr = '1' then
