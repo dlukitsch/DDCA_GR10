@@ -17,8 +17,9 @@ entity ctrl is
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
             rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
-	    
-            flush_branch : out std_logic
+            flush_decode : out std_logic;
+            flush_exec : out std_logic;
+            flush_mem : out std_logic
         );
 
 end ctrl;
@@ -37,6 +38,8 @@ architecture rtl of ctrl is
     alias B : std_logic is cop_reg_next(CAUSE)(31);
     alias I : std_logic is cop_reg_next(STATUS)(0);
 
+    signal cop0_op : cop0_op_type;
+
 begin  -- rtl
 
     sync : process(all)
@@ -46,13 +49,17 @@ begin  -- rtl
             cop_reg <= (others => x"00000000");
         elsif rising_edge(clk) then
             cop_reg <= cop_reg_next;
+            cop0_op <= cop_op;
         end if;
 
     end process;
 
     output : process(all)
     begin
-        flush_branch <= pcsrc;
+
+        flush_decode <= pcsrc;
+        flush_exec <= pcsrc;
+        flush_mem <= '0';
 
         cop_reg_next <= cop_reg;
 
@@ -64,6 +71,8 @@ begin  -- rtl
             if pcsrc = '1' then --branch delay slot
                 B <= '1';
             end if;
+
+            flush_mem <= '1';
         end if;
 
         if intr /= "000" and I = '1' then
@@ -78,6 +87,12 @@ begin  -- rtl
         if cop_op.wr = '1' then
             cop_reg_next(to_integer(signed(cop_op.addr))-12) <= wrdata;
         end if;
+
+        if cop0_op.wr = '1' then
+            cop_reg_next(to_integer(unsigned(cop0_op.addr))) <= wrdata;
+        end if;
+
+        rddata <= cop_reg(to_integer(unsigned(cop0_op.addr)));
 
     end process;    
 
