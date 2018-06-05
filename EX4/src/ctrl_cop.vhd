@@ -10,7 +10,7 @@ entity ctrl is
 	port (
             clk : in std_logic;
             reset : in std_logic;
-            cop_op : in cop_op_type; --from decode
+            cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
             pc : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
             pcsrc : in std_logic; --from mem
@@ -31,7 +31,6 @@ architecture rtl of ctrl is
     constant CAUSE : integer := 1;
     constant EPC : integer := 2;
     constant NPC : integer := 3;
-
 
     alias exc : std_logic_vector(3 downto 0) is cop_reg_next(CAUSE)(5 downto 2);
     alias pen : std_logic_vector(2 downto 0) is cop_reg_next(CAUSE)(12 downto 10);
@@ -57,7 +56,7 @@ begin  -- rtl
 
         cop_reg_next <= cop_reg;
 
-        cop_reg_next(NPC) <= pc;
+        cop_reg_next(NPC)(PC_WIDTH-1 downto 0) <= pc;
         cop_reg_next(EPC) <= cop_reg(NPC);
 
         if exc_ovf = '1' then
@@ -77,9 +76,8 @@ begin  -- rtl
         end if;
 
         if cop_op.wr = '1' then
-            cop_reg_next(unsigned(cop_op.addr)-12) <= wrdata;
+            cop_reg_next(to_integer(signed(cop_op.addr))-12) <= wrdata;
         end if;
-
 
     end process;    
 
