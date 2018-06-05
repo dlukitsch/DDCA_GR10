@@ -12,11 +12,13 @@ entity ctrl is
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
-            pc : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
-            pcsrc : in std_logic; --from mem
+            pc_in : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+            branch : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
             rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
+            pcsrc : out std_logic; --to fetch
+            pc_out : out std_logic_vector(PC_WIDTH-1 downto 0); --to fetch
             flush_decode : out std_logic;
             flush_exec : out std_logic;
             flush_mem : out std_logic
@@ -56,41 +58,51 @@ begin  -- rtl
 
     output : process(all)
     begin
+        pcsrc <= '0';
+        pc_out <= (others => '0');
 
-        flush_decode <= pcsrc;
-        flush_exec <= pcsrc;
+        --branch hazard resolution
+        flush_decode <= branch;
+        flush_exec <= branch;
+        
         flush_mem <= '0';
 
         cop_reg_next <= cop_reg;
 
-        cop_reg_next(NPC)(PC_WIDTH-1 downto 0) <= pc;
+        cop_reg_next(NPC)(PC_WIDTH-1 downto 0) <= pc_in;
         cop_reg_next(EPC) <= cop_reg(NPC);
 
         if exc_ovf = '1' then
             exc <= "1100";
-            if pcsrc = '1' then --branch delay slot
+            if branch = '1' then --branch delay slot
                 B <= '1';
             end if;
-
+            pcsrc <= '1';
+            pc_out <= EXCEPTION_PC;
+            flush_exec <= '1';
             flush_mem <= '1';
         end if;
 
-        if intr /= "000" and I = '1' then
+        if intr /= "000" and cop_reg(STATUS)(0) = '1' then
             exc <= "0000";
             pen <= intr; 
-            if pcsrc = '1' then --branch delay slot
+            if branch = '1' then --branch delay slot
                 B <= '1';
             end if;
             I <= '0'; --disable interrupts
+            pcsrc <= '1';
+            pc_out <= EXCEPTION_PC;
+            flush_exec <= '1';
+            flush_mem <= '1';;
         end if;
 
         if cop_op.wr = '1' then
-            cop_reg_next(to_integer(signed(cop_op.addr))-12) <= wrdata;
+            cop_reg_next(to_integer(unsigned(cop_op.addr))-12) <= wrdata;
         end if;
 
-        if cop0_op.wr = '1' then
-            cop_reg_next(to_integer(unsigned(cop0_op.addr))) <= wrdata;
-        end if;
+        --if cop0_op.wr = '1' then
+        --    cop_reg_next(to_integer(unsigned(cop0_op.addr))) <= wrdata;
+        --end if;
 
         rddata <= cop_reg(to_integer(unsigned(cop0_op.addr)));
 

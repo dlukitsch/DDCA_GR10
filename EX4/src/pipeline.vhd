@@ -36,10 +36,12 @@ architecture rtl of pipeline is
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
             pc : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
-            pcsrc : in std_logic; --from mem
+            branch : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
             rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
+            pcsrc : std_logic;
+            pc_out : std_logic_vector(PC_WIDTH-1 downto 0);
             flush_decode : out std_logic;
             flush_exec : out std_logic;
             flush_mem : out std_logic
@@ -182,7 +184,13 @@ architecture rtl of pipeline is
 	signal cop0_op_decode : cop0_op_type;
 	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
 	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
+
+        signal cop_pcsrc : std_logic;
+        signal cop_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 	
+        signal mem_pcsrc : std_logic;
+        signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+
 begin  -- rtl
 	
 	synchronizer : process(all)
@@ -211,10 +219,12 @@ begin  -- rtl
 		cop_op => cop0_op_decode,
 		wrdata => exec_op_decode.readdata2,
 		pc => pc_out_decode,
-		pcsrc => pcsrc_fetch,
+		branch => pcsrc_fetch,
 		exc_ovf => exc_ovf_exec,
 		intr => intr,
 		rddata => cop0_rddata_exec,
+                pcsrc => cop_pcsrc,
+                pc_out => cop_pc,
 		flush_decode => flush_decode,
 		flush_exec => flush_exec,
 		flush_mem => flush_mem
@@ -298,11 +308,11 @@ begin  -- rtl
 		neg => neg_exec,
 		new_pc_in => new_pc_exec,
 		pc_out => open, -- this pin has to be implemented at exercise 4
-		pcsrc => pcsrc_fetch,
+		pcsrc => mem_pcsrc,
 		rd_out => rd_out_mem,
 		aluresult_out => aluresult_out_mem,
 		memresult => memresult_mem,
-		new_pc_out => pc_in_fetch,
+		new_pc_out => mem_pc,
 		wbop_in => wbop_out_exec,
 		wbop_out => wbop_out_mem,
 		mem_out => mem_out,
@@ -325,5 +335,18 @@ begin  -- rtl
 		result => wrdata_decode,
 		regwrite => regwrite_decode
 	);
+
+    pcmux : process(all)
+    begin
+
+        if cop_pcsrc = '1' then
+            pcsrc_fetch <= cop_pcsrc;
+            pc_in_fetch <= cop_pc;
+        else
+            pcsrc_fetch <= mem_pcsrc;
+            pc_in_fetch <= mem_pc;
+        end if;
+
+    end process;
 	
 end rtl;
