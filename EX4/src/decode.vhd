@@ -476,13 +476,14 @@ begin  -- rtl
 					case rs is  --> do not forget the forwarding !!!
 						when "00000" => --MFC0
                                                     cop0_op.addr <= rd_r;
-                                                    exec_op.rd <= rd_r;
+                                                    exec_op.rd <= rt;
                                                     exec_op.cop0 <= '1';
                                                     exec_op.regdst <= '1';
                                                     wb_op.regwrite <= '1';
 						when "00100" => --MTC0
                                                     cop0_op.wr <= '1';
                                                     cop0_op.addr <= rd_r;
+                                                    exec_op.readdata2 <= rddata2;
                                                     exec_op.rd <= rd_r;
 						when others =>
 						    exc_dec <= '1';
