@@ -24,20 +24,69 @@ architecture bench of mimi_tb is
 
 	end component;
 
+	component serial_port is 
+		generic (
+			CLK_FREQ : integer;
+			BAUD_RATE : integer;
+			SYNC_STAGES : integer;
+			TX_FIFO_DEPTH : integer;
+			RX_FIFO_DEPTH : integer
+		);
+		port (
+			clk : in std_logic;                       --clock
+			res_n : in std_logic;                     --low-active reset
+		
+			tx_data : in std_logic_vector(7 downto 0);
+			tx_wr : in std_logic;
+			tx_full : out std_logic;
+			tx_free : out std_logic;
+			rx_data : out std_logic_vector(7 downto 0);
+			rx_rd : in std_logic;
+			rx_data_full : out std_logic;
+			rx_data_empty : out std_logic;
+			rx : in std_logic;
+			tx : out std_logic   
+		);
+	end component;
+
     constant CLK_PERIOD : time := 20 ns;
     
     signal clk, reset, tx, rx : std_logic;
 
+	signal rx_data : std_logic_vector(7 downto 0);
 
 begin
 
 	UUT : mimi
 	port map (
-	clk_pin => clk,
-	reset_pin => reset,
-	tx => tx,
-	rx => rx,
-	intr_pin => (others => '0')
+		clk_pin => clk,
+		reset_pin => reset,
+		tx => tx,
+		rx => rx,
+		intr_pin => (others => '0')
+	);
+
+	test_uart : serial_port
+	generic map (
+		CLK_FREQ => 50000000,
+		BAUD_RATE => 115200,
+		SYNC_STAGES => 2,
+		TX_FIFO_DEPTH => 4,
+		RX_FIFO_DEPTH => 4
+	)
+	port map (
+		clk => clk,
+		res_n => reset,
+		tx_data => (others => '0'),
+		tx_wr => '0',
+		tx_full => open,
+		tx_free => open,
+		rx_data => rx_data,
+		rx_rd => '1',
+		rx_data_full => open,
+		rx_data_empty => open,
+		rx => tx,
+		tx => open
 	);
 
     stimulus : process
