@@ -1,4 +1,4 @@
-PROJECT=testctrl
+PROJECT=testcop0
 
 PREFIX=/usr/mips
 
