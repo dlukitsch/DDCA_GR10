@@ -82,7 +82,7 @@ begin  -- rtl
             if branch = '1' then --branch delay slot
                 B_next <= '1';
             end if;
-            pcsrc <= '1';
+            --pcsrc <= '1';
             pc_out <= EXCEPTION_PC;
             flush_exec <= '1';
             flush_mem <= '1';
@@ -96,7 +96,7 @@ begin  -- rtl
                 B_next <= '1';
             end if;
             I_next <= '0'; --disable interrupts
-            pcsrc <= '1';
+            --pcsrc <= '1';
             pc_out <= EXCEPTION_PC;
             flush_exec <= '1';
             flush_mem <= '1';

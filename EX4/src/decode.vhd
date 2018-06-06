@@ -476,6 +476,7 @@ begin  -- rtl
 					case rs is  --> do not forget the forwarding !!!
 						when "00000" => --MFC0
                                                     cop0_op.addr <= rd_r;
+                                                    exec_op.rd <= rd_r;
                                                     exec_op.cop0 <= '1';
                                                     exec_op.regdst <= '1';
                                                     wb_op.regwrite <= '1';

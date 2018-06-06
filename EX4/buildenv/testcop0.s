@@ -24,14 +24,14 @@ _start:
 		
 		mtc0 $2, $12 #copy reg 2 to status reg
 		mtc0 $3, $13 #copy reg 3 to cause reg
-		mtc0 $4, $13 #copy reg 4 to epc reg
-		mtc0 $5, $13 #copy reg 5 to npc reg
+		mtc0 $4, $14 #copy reg 4 to epc reg
+		mtc0 $5, $15 #copy reg 5 to npc reg
 		nop
 		
 		mfc0 $6, $12 #copy status register to reg 6
 		mfc0 $7, $13 #copy cause register to reg 7
-		mfc0 $8, $13 #copy epc register to reg 8
-		mfc0 $9, $13 #copy npc register to reg 9
+		mfc0 $8, $14 #copy epc register to reg 8
+		mfc0 $9, $15 #copy npc register to reg 9
 		nop
 		
 		#test alu overflow exception
