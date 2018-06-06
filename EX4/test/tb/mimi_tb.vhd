@@ -38,7 +38,6 @@ architecture bench of mimi_tb is
 		
 			tx_data : in std_logic_vector(7 downto 0);
 			tx_wr : in std_logic;
-			tx_full : out std_logic;
 			tx_free : out std_logic;
 			rx_data : out std_logic_vector(7 downto 0);
 			rx_rd : in std_logic;
@@ -79,7 +78,6 @@ begin
 		res_n => reset,
 		tx_data => (others => '0'),
 		tx_wr => '0',
-		tx_full => open,
 		tx_free => open,
 		rx_data => rx_data,
 		rx_rd => '1',

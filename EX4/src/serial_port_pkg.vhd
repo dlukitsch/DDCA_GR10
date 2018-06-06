@@ -1,32 +1,15 @@
-----------------------------------------------------------------------------------
--- Company:      TU Wien                                                        --
--- Engineer:     Stefan Adelmann                                                --
---                                                                              --
--- Create Date:  15.03.2018                                                     --
--- Design Name:  Exercise_1                                                     --
--- Module Name:  serial_port                                                    --
--- Project Name: Exercise_1                                                     --
--- Description:  Serial-port  Package                                           --
-----------------------------------------------------------------------------------
-
-----------------------------------------------------------------------------------
---                                LIBRARIES                                     --
-----------------------------------------------------------------------------------
-
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-----------------------------------------------------------------------------------
---                                 PACKAGE                                      --
-----------------------------------------------------------------------------------
+use work.sync_pkg.all;
+use work.math_pkg.all;
+use work.ram_pkg.all;
 
 package serial_port_pkg is
 
-	--------------------------------------------------------------------
-	--                          COMPONENT                             --
-	--------------------------------------------------------------------
+	component serial_port is 
 
-	component serial_port is
 		generic (
 			CLK_FREQ : integer;
 			BAUD_RATE : integer;
@@ -37,19 +20,21 @@ package serial_port_pkg is
 		port (
 			clk : in std_logic;                       --clock
 			res_n : in std_logic;                     --low-active reset
-			
-			tx_data : in std_logic_vector(7 downto 0);
-			tx_wr : in std_logic;
-			tx_full : out std_logic;
-			tx_free : out std_logic;
-			rx_data : out std_logic_vector(7 downto 0);
-			rx_rd : in std_logic;
-			rx_data_full : out std_logic;
-			rx_data_empty : out std_logic;
-			rx : in std_logic;
-			tx : out std_logic   
-		);
-	end component serial_port;
-end package serial_port_pkg;
+		
+			tx_data : in std_logic_vector(7 downto 0);  --data to transmit to to host
+			tx_wr : in std_logic;						--1 if new tx data present
+			tx_free : out std_logic;					--1 if internal buffer is full and no new data can be written
+			--tx_full : out std_logic;
 
---- EOF ---
+			rx_data : out std_logic_vector(7 downto 0);	--the byte which was last read from the receiver fifo
+			rx_rd : in std_logic;						--1 if next byte from fifo available
+			rx_data_full : out std_logic;					--1 if receiver fifo is full and characters may have been lost
+			rx_data_empty : out std_logic;					--1 if receiver fifo is empty
+
+			rx : in std_logic;                       --serial input (host -> device)
+			tx : out std_logic						 --serial output (device -> host)
+		);
+
+	end component;
+
+end package serial_port_pkg;
