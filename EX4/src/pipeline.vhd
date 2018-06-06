@@ -176,7 +176,6 @@ architecture rtl of pipeline is
 	signal wbop_out_mem : wb_op_type;
 	
 	signal reset_sync : std_logic := '1'; 
-    signal flush_branch : std_logic;
 	
 	signal rs_exec, rt_exec : std_logic_vector(REG_BITS-1 downto 0);
 	signal forwardA, forwardB : fwd_type;

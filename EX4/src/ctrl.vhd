@@ -28,17 +28,20 @@ end ctrl;
 
 architecture rtl of ctrl is
 
-    type reg_type is array(3 downto 0) of std_logic_vector(DATA_WIDTH-1 downto 0);
-    signal cop_reg, cop_reg_next : reg_type := (others => x"00000000");
-    constant STATUS : integer := 0;
-    constant CAUSE : integer := 1;
-    constant EPC : integer := 2;
-    constant NPC : integer := 3;
+    type COPROCESSOR_REGISTERS is record
+        status : std_logic_vector(DATA_WIDTH-1 downto 0);
+        cause : std_logic_vector(DATA_WIDTH-1 downto 0);
+        epc : std_logic_vector(DATA_WIDTH-1 downto 0);
+        npc : std_logic_vector(DATA_WIDTH-1 downto 0);
+    end record;
 
-    alias exc : std_logic_vector(3 downto 0) is cop_reg_next(CAUSE)(5 downto 2);
-    alias pen : std_logic_vector(2 downto 0) is cop_reg_next(CAUSE)(12 downto 10);
-    alias B : std_logic is cop_reg_next(CAUSE)(31);
-    alias I : std_logic is cop_reg_next(STATUS)(0);
+    signal cop_reg, cop_reg_next : COPROCESSOR_REGISTERS;
+
+    alias exc_next : std_logic_vector(3 downto 0) is cop_reg_next.cause(5 downto 2);
+    alias pen_next : std_logic_vector(2 downto 0) is cop_reg_next.cause(12 downto 10);
+    alias B_next : std_logic is cop_reg_next.cause(31);
+    alias I : std_logic is cop_reg.status(0);
+    alias I_next : std_logic is cop_reg_next.status(0);
 
     signal cop0_op : cop0_op_type;
 
@@ -60,6 +63,7 @@ begin  -- rtl
     begin
         pcsrc <= '0';
         pc_out <= (others => '0');
+        rddata <= (others => '0');
 
         --branch hazard resolution
         flush_decode <= branch;
@@ -69,13 +73,14 @@ begin  -- rtl
 
         cop_reg_next <= cop_reg;
 
-        cop_reg_next(NPC)(PC_WIDTH-1 downto 0) <= pc_in;
-        cop_reg_next(EPC) <= cop_reg(NPC);
+        cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in;
+        cop_reg_next.epc <= cop_reg.npc;
 
+        --ALU ovf detected
         if exc_ovf = '1' then
-            exc <= "1100";
+            exc_next <= "1100";
             if branch = '1' then --branch delay slot
-                B <= '1';
+                B_next <= '1';
             end if;
             pcsrc <= '1';
             pc_out <= EXCEPTION_PC;
@@ -83,28 +88,44 @@ begin  -- rtl
             flush_mem <= '1';
         end if;
 
-        if intr /= "000" and cop_reg(STATUS)(0) = '1' then
-            exc <= "0000";
-            pen <= intr; 
+        --interrupt detected
+        if intr /= "000" and I = '1' then
+            exc_next <= "0000";
+            pen_next <= intr; 
             if branch = '1' then --branch delay slot
-                B <= '1';
+                B_next <= '1';
             end if;
-            I <= '0'; --disable interrupts
+            I_next <= '0'; --disable interrupts
             pcsrc <= '1';
             pc_out <= EXCEPTION_PC;
             flush_exec <= '1';
             flush_mem <= '1';
         end if;
 
-        if cop_op.wr = '1' then
-            cop_reg_next(to_integer(unsigned(cop_op.addr))-12) <= wrdata;
-        end if;
-
-        --if cop0_op.wr = '1' then
-        --    cop_reg_next(to_integer(unsigned(cop0_op.addr))) <= wrdata;
-        --end if;
-
-        rddata <= cop_reg(to_integer(unsigned(cop0_op.addr)));
+        --register io multiplex
+        case cop0_op.addr is
+            when "01100" =>
+                if cop_op.wr = '1' then
+                    cop_reg_next.status <= wrdata;
+                end if;
+                rddata <= cop_reg.status;
+            when "01101" =>
+                if cop_op.wr = '1' then
+                    cop_reg_next.cause <= wrdata;
+                end if;
+                rddata <= cop_reg.cause;
+            when "01110" =>
+                if cop_op.wr = '1' then
+                    cop_reg_next.epc <= wrdata;
+                end if;
+                rddata <= cop_reg.epc;
+            when "01111" =>
+                if cop_op.wr = '1' then
+                    cop_reg_next.npc <= wrdata;
+                end if;
+                rddata <= cop_reg.npc;
+            when others =>
+        end case;
 
     end process;    
 
