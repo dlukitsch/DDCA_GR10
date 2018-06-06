@@ -21,10 +21,11 @@ entity serial_port is
 		tx_data : in std_logic_vector(7 downto 0);
 		tx_wr : in std_logic;
 		tx_full : out std_logic;
+		tx_free : out std_logic;
 		rx_data : out std_logic_vector(7 downto 0);
 		rx_rd : in std_logic;
-		rx_full : out std_logic;
-		rx_empty : out std_logic;
+		rx_data_full : out std_logic;
+		rx_data_empty : out std_logic;
 		rx : in std_logic;
 		tx : out std_logic   
 	);
@@ -99,11 +100,13 @@ architecture beh of serial_port is
 	signal rx_sync : std_logic;
 	signal new_data : std_logic;
 	signal data : std_logic_vector(7 downto 0);
-	signal tx_empty : std_logic;
+	signal tx_data_empty : std_logic;
 	signal tx_data_fifo : std_logic_vector(7 downto 0);
 	signal rd : std_logic;
 	
 begin
+	tx_free <= not tx_full;
+
 	serial_sync : sync
 	generic map (
 		SYNC_STAGES => SYNC_STAGES,
@@ -139,9 +142,9 @@ begin
 		rd => rx_rd,
 		wr => new_data,
 		wr_data => data,
-		empty => rx_empty,
+		empty => rx_data_empty,
 		rd_data => rx_data,
-		full => rx_full,
+		full => rx_data_full,
 		fill_level => open
 	);
 	
@@ -156,7 +159,7 @@ begin
 		rd => rd,
 		wr => tx_wr,
 		wr_data => tx_data,
-		empty => tx_empty,
+		empty => tx_data_empty,
 		rd_data => tx_data_fifo,
 		full => tx_full,
 		fill_level => open
@@ -169,7 +172,7 @@ begin
 	port map (
 		clk => clk,
 		res_n => res_n,
-		empty => tx_empty,
+		empty => tx_data_empty,
 		data => tx_data_fifo,
 		rd => rd,
 		tx => tx

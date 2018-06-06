@@ -41,10 +41,11 @@ package serial_port_pkg is
 			tx_data : in std_logic_vector(7 downto 0);
 			tx_wr : in std_logic;
 			tx_full : out std_logic;
+			tx_free : out std_logic;
 			rx_data : out std_logic_vector(7 downto 0);
 			rx_rd : in std_logic;
-			rx_full : out std_logic;
-			rx_empty : out std_logic;
+			rx_data_full : out std_logic;
+			rx_data_empty : out std_logic;
 			rx : in std_logic;
 			tx : out std_logic   
 		);
