@@ -12,8 +12,8 @@ _start:
 		
 		mfc0 $2, $12 #copy status register to reg 2
 		mfc0 $3, $13 #copy cause register to reg 3
-		mfc0 $4, $13 #copy epc register to reg 4
-		mfc0 $5, $13 #copy npc register to reg 5
+		mfc0 $4, $14 #copy epc register to reg 4
+		mfc0 $5, $15 #copy npc register to reg 5
 		nop
 		
 		addi $2, $0, -1	
