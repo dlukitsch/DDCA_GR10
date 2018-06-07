@@ -35,7 +35,8 @@ architecture rtl of pipeline is
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
-            pc_in : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+            pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+				pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
             branch : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
@@ -149,9 +150,8 @@ architecture rtl of pipeline is
 		regwrite   : out std_logic);
 
 	end component;
-	
-	signal pcsrc_fetch : std_logic;
-	signal pc_in_fetch, pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
+
+	signal pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	signal instr_fetch : std_logic_vector(INSTR_WIDTH-1 downto 0);
 	
 	signal wraddr_decode : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
@@ -217,13 +217,14 @@ begin  -- rtl
 		reset => reset_sync ,
 		cop_op => cop0_op_decode,
 		wrdata => exec_op_decode.readdata2,
-		pc_in => pc_out_decode,
-		branch => pcsrc_fetch,
+		pc_in_dec => pc_out_decode,
+		pc_in_mem => mem_pc,
+		branch => mem_pcsrc,
 		exc_ovf => exc_ovf_exec,
 		intr => intr,
 		rddata => cop0_rddata_exec,
-        pcsrc => cop_pcsrc,
-        pc_out => cop_pc,
+      pcsrc => cop_pcsrc,
+      pc_out => cop_pc,
 		flush_decode => flush_decode,
 		flush_exec => flush_exec,
 		flush_mem => flush_mem
@@ -234,8 +235,8 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		pcsrc => pcsrc_fetch,
-		pc_in => pc_in_fetch,
+		pcsrc => cop_pcsrc,
+		pc_in => cop_pc,
 		pc_out => pc_out_fetch,
 		instr => instr_fetch
 	);
@@ -334,18 +335,5 @@ begin  -- rtl
 		result => wrdata_decode,
 		regwrite => regwrite_decode
 	);
-
-    pcmux : process(all)
-    begin
-
-        if cop_pcsrc = '1' then
-            pcsrc_fetch <= cop_pcsrc;
-            pc_in_fetch <= cop_pc;
-        else
-            pcsrc_fetch <= mem_pcsrc;
-            pc_in_fetch <= mem_pc;
-        end if;
-
-    end process;
 	
 end rtl;

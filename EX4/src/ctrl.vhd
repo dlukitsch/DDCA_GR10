@@ -12,7 +12,8 @@ entity ctrl is
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
-            pc_in : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+				pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+            pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
             branch : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
@@ -61,8 +62,8 @@ begin  -- rtl
 
     output : process(all)
     begin
-        pcsrc <= '0';
-        pc_out <= (others => '0');
+        pcsrc <= branch;
+        pc_out <= pc_in_mem;
         rddata <= (others => '0');
 
         --branch hazard resolution
@@ -73,9 +74,10 @@ begin  -- rtl
 
         cop_reg_next <= cop_reg;
 
-        cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in;
+        cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_dec;
         cop_reg_next.epc <= cop_reg.npc;
-
+			
+			
         --ALU ovf detected
         if exc_ovf = '1' then
             exc_next <= "1100";
