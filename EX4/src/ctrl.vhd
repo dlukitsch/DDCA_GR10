@@ -12,7 +12,7 @@ entity ctrl is
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
-				pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+	    pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
             pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
             branch : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
@@ -52,7 +52,7 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-            cop_reg <= ((others => '0'), (others => '0'), (others => '0'), (others => '0'));
+            cop_reg <= ((0 => '1', others => '0'), (others => '0'), (others => '0'), (others => '0'));
         elsif rising_edge(clk) then
             cop_reg <= cop_reg_next;
             cop_op_reg <= cop_op;

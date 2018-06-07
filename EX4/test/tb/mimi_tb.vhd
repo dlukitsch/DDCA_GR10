@@ -51,8 +51,8 @@ architecture bench of mimi_tb is
     constant CLK_PERIOD : time := 20 ns;
     
     signal clk, reset, tx, rx : std_logic;
-
-	signal rx_data : std_logic_vector(7 downto 0);
+    signal rx_data : std_logic_vector(7 downto 0);
+    signal intr : std_logic_vector(2 downto 0);
 
 begin
 
@@ -62,7 +62,7 @@ begin
 		reset_pin => reset,
 		tx => tx,
 		rx => rx,
-		intr_pin => (others => '0')
+		intr_pin => intr
 	);
 
 	test_uart : serial_port
@@ -89,10 +89,15 @@ begin
 
     stimulus : process
     begin
+        intr <= "111";
 	rx <= '0';
         reset <= '0';
         wait for 1.5*CLK_PERIOD;
         reset <= '1';
+--        wait for 60.5*CLK_PERIOD;
+--        intr <= "110";
+--        wait for CLK_PERIOD;
+--        intr <= "111";
         wait;  
     end process;
 
