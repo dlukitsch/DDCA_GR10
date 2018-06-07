@@ -471,7 +471,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					wb_op.regwrite <= '1';
 				when "010000" =>
-					case rs is  --> do not forget the forwarding !!!
+					case rs is
 						when "00000" => --MFC0
                                                     cop0_op.addr <= rd_r;
                                                     exec_op.rd <= rt;
@@ -482,7 +482,6 @@ begin  -- rtl
                                                     cop0_op.wr <= '1';
                                                     cop0_op.addr <= rd_r;
                                                     exec_op.readdata2 <= rddata2;
-                                                    exec_op.rd <= rd_r;
 						when others =>
 						    exc_dec <= '1';
 					end case;
