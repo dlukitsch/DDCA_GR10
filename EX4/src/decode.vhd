@@ -52,7 +52,7 @@ architecture rtl of decode is
 			data_out(17 downto 0) <= data_in & "00"; -- sll 2 for 18 bit
 		else
 			data_out(31 downto 18) <= (others => '1');
-			data_out(17 downto 0) <= data_in & "11";
+			data_out(17 downto 0) <= data_in & "00";
 		end if;
 	end shift_imm;
 	

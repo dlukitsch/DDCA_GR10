@@ -31,10 +31,10 @@ begin  -- rtl
 
 	core : entity work.core
 		generic map (
-			clk_freq  => 75000000,
+			clk_freq  => 50000000,
 			baud_rate => 115200)
 		port map (
-			clk	  => clk,
+			clk	  => clk_pin,
 			reset => reset,
 			tx    => tx,
 			rx    => rx,
@@ -45,9 +45,9 @@ begin  -- rtl
 		c0      => clk,
 		locked  => pll_locked);
 
-	sync: process (clk)
+	sync: process (clk_pin)
 	begin  -- process sync
-		if clk'event and clk = '1' then  -- rising clock edge
+		if clk_pin'event and clk_pin = '1' then  -- rising clock edge
 			-- external reset, pll must be locked
 			reset_reg0 <= reset_pin and pll_locked;
 			reset_reg1 <= reset_reg0;
