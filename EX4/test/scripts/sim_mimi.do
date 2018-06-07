@@ -21,9 +21,9 @@ vcom -work work -2008 ../src/wb_ram.vhd
 vcom -work work -2008 ../src/dp_ram_1c1r1w.vhd
 vcom -work work -2008 ../src/fifo_1c1r1w.vhd
 vcom -work work -2008 ../src/serial_port_rx_fsm.vhd
-vcom -work work -2008 ../src/serial_port_rx_fsm_pkg.vhd
+#vcom -work work -2008 ../src/serial_port_rx_fsm_pkg.vhd
 vcom -work work -2008 ../src/serial_port_tx_fsm.vhd
-vcom -work work -2008 ../src/serial_port_tx_fsm_pkg.vhd
+#vcom -work work -2008 ../src/serial_port_tx_fsm_pkg.vhd
 vcom -work work -2008 ../src/serial_port.vhd
 vcom -work work -2008 ../src/serial_port_pkg.vhd
 vcom -work work -2008 ../src/serial_port_wrapper.vhd
@@ -38,7 +38,6 @@ vsim work.mimi_tb
 # signals for debugging
 add wave -radix hex /mimi_tb/UUT/*
 add wave -radix ASCII /mimi_tb/test_uart/rx_data
-add wave -radix hex /mimi_tb/UUT/core/uart/tx_free
 add wave -radix hex /mimi_tb/UUT/core/pipeline/*
 
-run 500 us
+run 1 ms
