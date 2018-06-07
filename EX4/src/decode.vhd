@@ -48,12 +48,10 @@ architecture rtl of decode is
 		signal data_out : out std_logic_vector(31 downto 0)
 		) is
 	begin
-		if data_in(15) = '0' then --check for negative or positive value
-			data_out(17 downto 0) <= data_in & "00"; -- sll 2 for 18 bit
-		else
+		if data_in(15) = '1' then --check for negative or positive value
 			data_out(31 downto 18) <= (others => '1');
-			data_out(17 downto 0) <= data_in & "00";
 		end if;
+		data_out(17 downto 0) <= data_in & "00"; -- sll 2 for 18 bit
 	end shift_imm;
 	
 	procedure calc_imm(
@@ -473,7 +471,7 @@ begin  -- rtl
 					exec_op.regdst <= '1';
 					wb_op.regwrite <= '1';
 				when "010000" =>
-					case rs is  --> do not forget the forwarding !!!
+					case rs is
 						when "00000" => --MFC0
                                                     cop0_op.addr <= rd_r;
                                                     exec_op.rd <= rt;
@@ -484,7 +482,6 @@ begin  -- rtl
                                                     cop0_op.wr <= '1';
                                                     cop0_op.addr <= rd_r;
                                                     exec_op.readdata2 <= rddata2;
-                                                    exec_op.rd <= rd_r;
 						when others =>
 						    exc_dec <= '1';
 					end case;
