@@ -48,12 +48,10 @@ architecture rtl of decode is
 		signal data_out : out std_logic_vector(31 downto 0)
 		) is
 	begin
-		if data_in(15) = '0' then --check for negative or positive value
-			data_out(17 downto 0) <= data_in & "00"; -- sll 2 for 18 bit
-		else
+		if data_in(15) = '1' then --check for negative or positive value
 			data_out(31 downto 18) <= (others => '1');
-			data_out(17 downto 0) <= data_in & "00";
 		end if;
+		data_out(17 downto 0) <= data_in & "00"; -- sll 2 for 18 bit
 	end shift_imm;
 	
 	procedure calc_imm(
