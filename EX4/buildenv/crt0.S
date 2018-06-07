@@ -18,3 +18,5 @@ $loop:
 
 	.end	_start
 	.size	_start, .-_start
+
+#include "exc_handler.S"

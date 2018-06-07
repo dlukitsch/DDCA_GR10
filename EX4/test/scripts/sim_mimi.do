@@ -38,5 +38,7 @@ vsim work.mimi_tb
 # signals for debugging
 add wave -radix hex /mimi_tb/UUT/*
 add wave -radix ASCII /mimi_tb/test_uart/rx_data
+add wave -radix hex /mimi_tb/UUT/core/uart/tx_free
+add wave -radix hex /mimi_tb/UUT/core/pipeline/*
 
 run 500 us

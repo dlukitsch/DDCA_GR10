@@ -55,7 +55,7 @@ begin  -- rtl
             cop_reg <= (others => x"00000000");
         elsif rising_edge(clk) then
             cop_reg <= cop_reg_next;
-            cop0_op <= cop_op;
+            --cop0_op <= cop_op;
         end if;
 
     end process;
@@ -105,7 +105,7 @@ begin  -- rtl
         end if;
 
         --register io multiplex
-        case cop0_op.addr is
+        case cop_op.addr is
             when "01100" =>
                 if cop_op.wr = '1' then
                     cop_reg_next.status <= wrdata;
