@@ -35,17 +35,18 @@ architecture rtl of pipeline is
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
-            pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
-				pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
-            branch : in std_logic; --from mem
+	    pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+	    pc_in_exec : in std_logic_vector(PC_WIDTH-1 downto 0); --from exec pc_out
+	    pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
+            bds : in std_logic; --from decode, exec_op.branch or exec_op.link
+	    pcsrc_in : in std_logic; --from mem
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
             rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
-            pcsrc : out std_logic;
+            pcsrc_out : out std_logic;
             pc_out : out std_logic_vector(PC_WIDTH-1 downto 0);
             flush_decode : out std_logic;
-            flush_exec : out std_logic;
-            flush_mem : out std_logic
+            flush_exec : out std_logic
 		);	
 	end component;
 
@@ -181,7 +182,7 @@ architecture rtl of pipeline is
 	signal forwardA, forwardB : fwd_type;
 	
 	signal cop0_op_decode : cop0_op_type;
-	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
+	signal exc_ovf_exec, flush_decode, flush_exec, flush_wb : std_logic;
 	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 	signal cop_pcsrc : std_logic;
@@ -190,8 +191,12 @@ architecture rtl of pipeline is
 	signal mem_pcsrc : std_logic;
 	signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
+	signal bds : std_logic;
+
 begin  -- rtl
-	
+
+	bds <= exec_op_decode.branch or exec_op_decode.link;	
+
 	synchronizer : process(all)
 	begin
 		if rising_edge(clk) then
@@ -214,20 +219,21 @@ begin  -- rtl
 	ctrl_inst : ctrl
 	port map (
 		clk => clk,
-		reset => reset_sync ,
+		reset => reset_sync,
 		cop_op => cop0_op_decode,
 		wrdata => exec_op_decode.readdata2,
 		pc_in_dec => pc_out_decode,
+		pc_in_exec => pc_out_exec,
 		pc_in_mem => mem_pc,
-		branch => mem_pcsrc,
+		bds => bds,
+		pcsrc_in => mem_pcsrc,
 		exc_ovf => exc_ovf_exec,
 		intr => intr,
 		rddata => cop0_rddata_exec,
-      pcsrc => cop_pcsrc,
-      pc_out => cop_pc,
+      		pcsrc_out => cop_pcsrc,
+      		pc_out => cop_pc,
 		flush_decode => flush_decode,
-		flush_exec => flush_exec,
-		flush_mem => flush_mem
+		flush_exec => flush_exec
 	);
 	
 	fetch_inst : fetch
@@ -297,7 +303,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => flush_mem, -- this pin has to be implemented at exercise 4
+		flush => '0', -- this pin has to be implemented at exercise 4
 		mem_op => memop_out_exec,
 		jmp_op => jmpop_out_exec,
 		pc_in => pc_out_exec,
