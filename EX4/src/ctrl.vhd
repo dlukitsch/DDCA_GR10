@@ -23,7 +23,8 @@ entity ctrl is
             pcsrc_out : out std_logic; --to fetch
             pc_out : out std_logic_vector(PC_WIDTH-1 downto 0); --to fetch
             flush_decode : out std_logic;
-            flush_exec : out std_logic
+            flush_exec : out std_logic;
+            flush_mem : out std_logic
         );
 
 end ctrl;
@@ -47,7 +48,6 @@ architecture rtl of ctrl is
 
     signal cop_op_reg : cop0_op_type;
     signal bds_reg0, bds_reg1 : std_logic;
-    signal surpress_branch, surpress_branch_next : std_logic;
 
 begin  -- rtl
 
@@ -59,25 +59,20 @@ begin  -- rtl
 	    cop_op_reg <= COP0_NOP;
 	    bds_reg0 <= '0';
 	    bds_reg1 <= '0';
-	    surpress_branch <= '0';
         elsif rising_edge(clk) then
             cop_reg <= cop_reg_next;
             cop_op_reg <= cop_op;
 	    bds_reg0 <= bds;
             bds_reg1 <= bds_reg0;
-	    surpress_branch <= surpress_branch_next;
         end if;
 
     end process;
 
     output : process(all)
     begin
-	if surpress_branch = '1' then
-	    pcsrc_out <= '0';
-	else
-            pcsrc_out <= pcsrc_in;
-	end if;
-
+        
+        --normal branching
+        pcsrc_out <= pcsrc_in;
         pc_out <= pc_in_mem; --new pc after branch
 
         rddata <= (others => '0');
@@ -85,14 +80,15 @@ begin  -- rtl
         --branch hazard resolution
         flush_decode <= pcsrc_in;
         flush_exec <= pcsrc_in;
+        flush_mem <= '0';
         
         cop_reg_next <= cop_reg;	
-	surpress_branch_next <= '0';
 		
         --ALU ovf detected
         if exc_ovf = '1' then
             exc_next <= "1100";
             B_next <= bds_reg1; --branch delay slot
+            I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
@@ -105,9 +101,11 @@ begin  -- rtl
             pen_next <= intr;
 	    if bds_reg0 = '1' then --interrupted instr in bds, restart branch instr (instr before bds)
             	B_next <= '1';
-		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
-		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
-		surpress_branch_next <= '1'; --surpress possible branch in next cycle
+--		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
+--		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
+		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+                flush_mem <= '1'; --flush branch instruction
 	    else --restart interrupted instr
 		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
 		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
@@ -116,6 +114,7 @@ begin  -- rtl
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
+            flush_exec <= '1';
         end if;
 
         --register io multiplex
