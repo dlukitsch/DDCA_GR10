@@ -34,7 +34,7 @@ architecture rtl of pipeline is
 		clk : in std_logic;
                 reset : in std_logic;
                 cop_op : in cop0_op_type; --from decode
-                wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
+                wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
                 pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
                 pc_in_exec : in std_logic_vector(PC_WIDTH-1 downto 0); --from exec pc_out
                 pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
@@ -104,6 +104,7 @@ architecture rtl of pipeline is
 		forwardA         : in  fwd_type;
 		forwardB         : in  fwd_type;
 		cop0_rddata      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+		cop0_wrdata      : out  std_logic_vector(DATA_WIDTH-1 downto 0);
 		mem_aluresult    : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		wb_result        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		exc_ovf          : out std_logic);
@@ -153,12 +154,16 @@ architecture rtl of pipeline is
 
 	end component;
 
-	signal pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
+	signal cop_pcsrc : std_logic;
+	signal cop_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+	
+        signal pc_out_fetch : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	signal instr_fetch : std_logic_vector(INSTR_WIDTH-1 downto 0);
 	
 	signal wraddr_decode : std_logic_vector(REG_BITS-1 downto 0) := (others => '0');
 	signal wrdata_decode : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => '0');
-	signal regwrite_decode : std_logic := '0';
+	signal cop0_wrdata : std_logic_vector(DATA_WIDTH-1 downto 0);
+        signal regwrite_decode : std_logic := '0';
 	signal pc_out_decode : std_logic_vector(PC_WIDTH-1 downto 0) := (others => '0');
 	signal exec_op_decode : exec_op_type;
 	signal jmp_op_decode : jmp_op_type;
@@ -185,9 +190,6 @@ architecture rtl of pipeline is
 	signal cop0_op_decode : cop0_op_type;
 	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
 	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
-
-	signal cop_pcsrc : std_logic;
-	signal cop_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
 	signal mem_pcsrc : std_logic;
 	signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
@@ -222,7 +224,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		cop_op => cop0_op_decode,
-		wrdata => exec_op_decode.readdata2,
+		wrdata => cop0_wrdata,
 		pc_in_dec => pc_out_decode,
 		pc_in_exec => pc_out_exec,
 		pc_in_mem => mem_pc,
@@ -295,6 +297,7 @@ begin  -- rtl
 		forwardA => forwardA,
 		forwardB => forwardB,
 		cop0_rddata => cop0_rddata_exec,
+		cop0_wrdata => cop0_wrdata,
 		mem_aluresult => aluresult_out_mem,
 		wb_result => wrdata_decode,
 		exc_ovf => exc_ovf_exec

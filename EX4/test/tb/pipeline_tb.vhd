@@ -42,8 +42,10 @@ architecture bench of pipeline_tb is
     signal mem_out : mem_out_type;
     signal ocram_data : std_logic_vector(DATA_WIDTH-1 downto 0);
 
-	type mux_type is (MUX_OCRAM, MUX_UART);
-	signal mux : mux_type;
+    type mux_type is (MUX_OCRAM, MUX_UART);
+    signal mux : mux_type;
+
+    signal intr : std_logic_vector(INTR_COUNT-1 downto 0);
 
 begin
 
@@ -53,7 +55,7 @@ begin
         reset => reset,
         mem_in => mem_in, --stall
         mem_out => mem_out,
-        intr => (others => '0')
+        intr => intr
     );
 
     ram : ocram_altera
@@ -83,19 +85,14 @@ begin
 
     stimulus : process
     begin
---        mem_in.busy <= '0';
---        mem_in.rddata <= (others => '0');
+        intr <= "000";
         reset <= '0';
         wait for 1.5*CLK_PERIOD;
         reset <= '1';
---        mem_in.rddata <= ocram_data;
---        mem_in.busy <= '1';
---        wait for 2*CLK_PERIOD;
---        mem_in.busy <= '0';
---        wait for 45.5*CLK_PERIOD;
---        mem_in.busy <= '1';
---        wait for 1*CLK_PERIOD;
---        mem_in.busy <= '0';
+--        wait for 17.5*CLK_PERIOD;
+--        intr <= "001";
+--        wait for CLK_PERIOD;
+--        intr <= "000";
         wait;  
     end process;
 

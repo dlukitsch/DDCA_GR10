@@ -11,7 +11,7 @@ entity ctrl is
             clk : in std_logic;
             reset : in std_logic;
             cop_op : in cop0_op_type; --from decode
-            wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from decode exec_op.rddata
+            wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
 	    pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
 	    pc_in_exec : in std_logic_vector(PC_WIDTH-1 downto 0); --from exec pc_out
 	    pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out, new pc after branch
@@ -83,9 +83,8 @@ begin  -- rtl
         flush_mem <= '0';
         
         cop_reg_next <= cop_reg;	
-		
-        --ALU ovf detected
-        if exc_ovf = '1' then
+	    
+        if exc_ovf = '1' then --ALU ovf detected
             exc_next <= "1100";
             B_next <= bds_reg1; --branch delay slot
             I_next <= '0'; --disable interrupts
@@ -93,55 +92,46 @@ begin  -- rtl
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
             flush_exec <= '1';
-        end if;
-
-        --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
-        if intr /= "000" and I = '1' then
+        elsif intr /= "000" and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
             pen_next <= intr;
-	    if bds_reg0 = '1' then --interrupted instr in bds, restart branch instr (instr before bds)
+            cop_reg_next.epc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
+            cop_reg_next.npc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
+	    if bds_reg0 = '1' then --interrupted instr in bds
             	B_next <= '1';
---		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
---		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= std_logic_vector(unsigned(pc_in_exec)-4);
-		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
-		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
                 flush_mem <= '1'; --flush branch instruction
-	    else --restart interrupted instr
-		cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
-		cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
 	    end if;
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
             flush_exec <= '1';
+        else 
+            case cop_op_reg.addr is --register io multiplex
+                when "01100" =>
+                    if cop_op_reg.wr = '1' then
+                        cop_reg_next.status <= wrdata;
+                    end if;
+                    rddata <= cop_reg.status;
+                when "01101" =>
+                    if cop_op_reg.wr = '1' then
+                        cop_reg_next.cause <= wrdata;
+                    end if;
+                    rddata <= cop_reg.cause;
+                when "01110" =>
+                    if cop_op_reg.wr = '1' then
+                        cop_reg_next.epc <= wrdata;
+                    end if;
+                    rddata <= cop_reg.epc;
+                when "01111" =>
+                    if cop_op_reg.wr = '1' then
+                        cop_reg_next.npc <= wrdata;
+                    end if;
+                    rddata <= cop_reg.npc;
+                when others =>
+            end case;
         end if;
-
-        --register io multiplex
-        case cop_op_reg.addr is
-            when "01100" =>
-                if cop_op_reg.wr = '1' then
-                    cop_reg_next.status <= wrdata;
-                end if;
-                rddata <= cop_reg.status;
-            when "01101" =>
-                if cop_op_reg.wr = '1' then
-                    cop_reg_next.cause <= wrdata;
-                end if;
-                rddata <= cop_reg.cause;
-            when "01110" =>
-                if cop_op_reg.wr = '1' then
-                    cop_reg_next.epc <= wrdata;
-                end if;
-                rddata <= cop_reg.epc;
-            when "01111" =>
-                if cop_op_reg.wr = '1' then
-                    cop_reg_next.npc <= wrdata;
-                end if;
-                rddata <= cop_reg.npc;
-            when others =>
-        end case;
-
+    
     end process;    
 
 end rtl;

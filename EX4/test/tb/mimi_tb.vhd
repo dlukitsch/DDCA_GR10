@@ -95,7 +95,12 @@ begin
         wait for 1.5*CLK_PERIOD;
         reset <= '1';
         --wait for 47.5*CLK_PERIOD;
-        wait for 60.5*CLK_PERIOD;
+        --wait for 60.5*CLK_PERIOD;
+        wait for 1000.5*CLK_PERIOD;
+        intr <= "110";
+        wait for CLK_PERIOD;
+        intr <= "111";
+        wait for 65000.5*CLK_PERIOD;
         intr <= "110";
         wait for CLK_PERIOD;
         intr <= "111";

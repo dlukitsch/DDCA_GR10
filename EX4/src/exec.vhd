@@ -28,6 +28,7 @@ entity exec is
 		forwardA         : in  fwd_type;
 		forwardB         : in  fwd_type;
 		cop0_rddata      : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+                cop0_wrdata      : out std_logic_vector(DATA_WIDTH-1 downto 0);
 		mem_aluresult    : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		wb_result        : in  std_logic_vector(DATA_WIDTH-1 downto 0);
 		exc_ovf          : out std_logic);
@@ -57,7 +58,7 @@ architecture rtl of exec is
 	signal alu_R : std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal alu_Z : std_logic;
 	signal alu_V : std_logic;
-	
+
 begin  -- rtl
 	
 	sync : process(all)
@@ -72,6 +73,7 @@ begin  -- rtl
 
 		elsif rising_edge(clk) then
 			if stall = '0' then
+                                pc_out <= pc_in;
                                 if flush = '0' then
                                     exec_op <= op;
 
@@ -82,7 +84,7 @@ begin  -- rtl
                                     end if;
 
                                     exec_pc <= pc_in;
-                                    pc_out <= pc_in;
+                                    --pc_out <= pc_in;
                                     memop_out <= memop_in;
                                     jmpop_out <= jmpop_in;
                                     wbop_out <= wbop_in;
@@ -90,10 +92,10 @@ begin  -- rtl
                                     exec_op <= EXEC_NOP;
                                     state <= NO_OP;
                                     exec_pc <= (others => '0');
-                                    pc_out <= (others => '0');
+                                    --pc_out <= (others => '0');
                                     memop_out <= MEM_NOP;
                                     jmpop_out <= JMP_NOP;
-                                    wbop_out <= WB_NOP;                                   
+                                    wbop_out <= WB_NOP;
                                 end if;
 			end if;
 		end if;
@@ -130,6 +132,7 @@ begin  -- rtl
 		alu_B <= (others => '0');
 		result := (others => '0');
 		temp := (others => '0');
+                cop0_wrdata <= (others => '0');
 		
 		case state is
 			when NO_OP =>
@@ -220,7 +223,14 @@ begin  -- rtl
 				
 			when COP_OP =>
 				aluresult <= cop0_rddata;
-		end case;
+                                if forwardB = FWD_ALU then
+                                        cop0_wrdata <= mem_aluresult;
+                                elsif forwardB = FWD_WB then
+                                        cop0_wrdata <= wb_result;
+                                else
+                                        cop0_wrdata <= exec_op.readdata2;
+                                end if;
+            end case;
 	end process;
 
 end rtl;

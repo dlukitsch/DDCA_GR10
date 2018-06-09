@@ -96,12 +96,13 @@ begin  -- rtl
 			pc_out <= (others => '0');
 		elsif rising_edge(clk) then
                         if stall = '0' then
+                            pc_out <= pc_in;
                             if flush = '0' then
                                 instr_next <= instr;
-                                pc_out <= pc_in;
+                                --pc_out <= pc_in;
                             else
                                 instr_next <= (others => '0');
-                                pc_out <= (others => '0');
+                                --pc_out <= (others => '0');
                             end if;
                         end if;
 		end if;
@@ -481,7 +482,9 @@ begin  -- rtl
 						when "00100" => --MTC0
                                                     cop0_op.wr <= '1';
                                                     cop0_op.addr <= rd_r;
+                                                    exec_op.cop0 <= '1';
                                                     exec_op.readdata2 <= rddata2;
+                                                    exec_op.rt <= rt;
 						when others =>
 						    exc_dec <= '1';
 					end case;
