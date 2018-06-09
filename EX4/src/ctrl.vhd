@@ -48,6 +48,7 @@ architecture rtl of ctrl is
 
     signal cop_op_reg : cop0_op_type;
     signal bds_reg0, bds_reg1 : std_logic;
+	signal int_wrdata : std_logic_vector(DATA_WIDTH-1 downto 0);
 
 begin  -- rtl
 
@@ -59,10 +60,12 @@ begin  -- rtl
 	    cop_op_reg <= COP0_NOP;
 	    bds_reg0 <= '0';
 	    bds_reg1 <= '0';
+		int_wrdata <= (others => '0');
         elsif rising_edge(clk) then
             cop_reg <= cop_reg_next;
+			int_wrdata <= wrdata;
             cop_op_reg <= cop_op;
-	    bds_reg0 <= bds;
+			bds_reg0 <= bds;
             bds_reg1 <= bds_reg0;
         end if;
 
@@ -121,22 +124,22 @@ begin  -- rtl
         case cop_op_reg.addr is
             when "01100" =>
                 if cop_op_reg.wr = '1' then
-                    cop_reg_next.status <= wrdata;
+                    cop_reg_next.status <= int_wrdata;
                 end if;
                 rddata <= cop_reg.status;
             when "01101" =>
                 if cop_op_reg.wr = '1' then
-                    cop_reg_next.cause <= wrdata;
+                    cop_reg_next.cause <= int_wrdata;
                 end if;
                 rddata <= cop_reg.cause;
             when "01110" =>
                 if cop_op_reg.wr = '1' then
-                    cop_reg_next.epc <= wrdata;
+                    cop_reg_next.epc <= int_wrdata;
                 end if;
                 rddata <= cop_reg.epc;
             when "01111" =>
                 if cop_op_reg.wr = '1' then
-                    cop_reg_next.npc <= wrdata;
+                    cop_reg_next.npc <= int_wrdata;
                 end if;
                 rddata <= cop_reg.npc;
             when others =>
