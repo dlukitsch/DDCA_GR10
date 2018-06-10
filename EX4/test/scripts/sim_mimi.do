@@ -41,4 +41,4 @@ add wave -radix ASCII /mimi_tb/test_uart/rx_data
 add wave -radix hex /mimi_tb/UUT/core/pipeline/*
 add wave -radix hex /mimi_tb/UUT/core/pipeline/ctrl_inst/*
 
-run 5 ms
+run 15 ms

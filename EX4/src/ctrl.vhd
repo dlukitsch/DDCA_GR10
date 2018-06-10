@@ -91,7 +91,7 @@ begin  -- rtl
             cop_reg_next.npc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
             B_next <= bds_reg1; --branch delay slot
             I_next <= '0'; --disable interrupts
-            --pcsrc_out <= '1';
+            pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
             flush_exec <= '1';

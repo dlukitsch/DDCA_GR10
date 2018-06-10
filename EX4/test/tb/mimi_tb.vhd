@@ -101,7 +101,15 @@ begin
         wait for CLK_PERIOD;
         intr <= "111";
         wait for 65000.5*CLK_PERIOD;
+        intr <= "101";
+        wait for CLK_PERIOD;
+        intr <= "111";
+        wait for 65000.5*CLK_PERIOD;
         intr <= "110";
+        wait for CLK_PERIOD;
+        intr <= "111";
+        wait for 65000.5*CLK_PERIOD;
+        intr <= "011";
         wait for CLK_PERIOD;
         intr <= "111";
         wait;  
