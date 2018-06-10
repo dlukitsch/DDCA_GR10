@@ -14,9 +14,10 @@ entity ctrl is
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
 	    pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
 	    pc_in_exec : in std_logic_vector(PC_WIDTH-1 downto 0); --from exec pc_out
-	    pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out, new pc after branch
+	    pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
             bds : in std_logic; --from decode, exec_op.branch or exec_op.link
 	    pcsrc_in : in std_logic; --from mem
+            pc_branch : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem new pc
             exc_ovf : in std_logic; --from exec
             intr : in std_logic_vector(INTR_COUNT-1 downto 0);
             rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
@@ -73,7 +74,7 @@ begin  -- rtl
         
         --normal branching
         pcsrc_out <= pcsrc_in;
-        pc_out <= pc_in_mem; --new pc after branch
+        pc_out <= pc_branch; --new pc after branch
 
         rddata <= (others => '0');
 
@@ -86,12 +87,15 @@ begin  -- rtl
 	    
         if exc_ovf = '1' then --ALU ovf detected
             exc_next <= "1100";
+            cop_reg_next.epc <= (PC_WIDTH-1 downto 0 => pc_in_mem, others => '0');
+            cop_reg_next.npc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
             B_next <= bds_reg1; --branch delay slot
             I_next <= '0'; --disable interrupts
-            pcsrc_out <= '1';
+            --pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
             flush_exec <= '1';
+            flush_mem <= '1';
         elsif intr /= "000" and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
             pen_next <= intr;

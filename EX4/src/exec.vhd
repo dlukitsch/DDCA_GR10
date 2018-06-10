@@ -84,7 +84,6 @@ begin  -- rtl
                                     end if;
 
                                     exec_pc <= pc_in;
-                                    --pc_out <= pc_in;
                                     memop_out <= memop_in;
                                     jmpop_out <= jmpop_in;
                                     wbop_out <= wbop_in;
@@ -92,7 +91,6 @@ begin  -- rtl
                                     exec_op <= EXEC_NOP;
                                     state <= NO_OP;
                                     exec_pc <= (others => '0');
-                                    --pc_out <= (others => '0');
                                     memop_out <= MEM_NOP;
                                     jmpop_out <= JMP_NOP;
                                     wbop_out <= WB_NOP;

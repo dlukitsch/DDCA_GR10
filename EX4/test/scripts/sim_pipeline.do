@@ -17,15 +17,9 @@ vcom -work work -2008 tb/pipeline_tb.vhd
 
 vsim work.pipeline_tb
 
-# signals for report
-#add wave -format logic /pipeline_tb/UUT/clk
-#add wave -format logic /pipeline_tb/UUT/reset
-#add wave /pipeline_tb/UUT/mem_out
-#add wave -format literal -radix hex /pipeline_tb/UUT/pc_out_fetch
-#add wave -format literal -radix hex /pipeline_tb/UUT/instr_fetch
-
 # signals for debugging
 add wave -radix hex /pipeline_tb/UUT/*
+add wave -radix hex /pipeline_tb/UUT/ctrl_inst/*
 
 run 5 us
 

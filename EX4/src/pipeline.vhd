@@ -40,6 +40,7 @@ architecture rtl of pipeline is
                 pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
                 bds : in std_logic; --from decode, exec_op.branch or exec_op.link
                 pcsrc_in : in std_logic; --from mem
+                pc_branch : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem new_pc
                 exc_ovf : in std_logic; --from exec
                 intr : in std_logic_vector(INTR_COUNT-1 downto 0);
                 rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
@@ -191,6 +192,8 @@ architecture rtl of pipeline is
 	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
 	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
 
+        signal branch_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+
 	signal mem_pcsrc : std_logic;
 	signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
@@ -230,6 +233,7 @@ begin  -- rtl
 		pc_in_mem => mem_pc,
 		bds => bds,
 		pcsrc_in => mem_pcsrc,
+                pc_branch => branch_pc,
 		exc_ovf => exc_ovf_exec,
 		intr => intr,
 		rddata => cop0_rddata_exec,
@@ -318,12 +322,12 @@ begin  -- rtl
 		zero => zero_exec,
 		neg => neg_exec,
 		new_pc_in => new_pc_exec,
-		pc_out => open, -- this pin has to be implemented at exercise 4
+		pc_out => mem_pc, -- this pin has to be implemented at exercise 4
 		pcsrc => mem_pcsrc,
 		rd_out => rd_out_mem,
 		aluresult_out => aluresult_out_mem,
 		memresult => memresult_mem,
-		new_pc_out => mem_pc,
+		new_pc_out => branch_pc,
 		wbop_in => wbop_out_exec,
 		wbop_out => wbop_out_mem,
 		mem_out => mem_out,

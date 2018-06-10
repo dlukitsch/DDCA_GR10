@@ -99,10 +99,8 @@ begin  -- rtl
                             pc_out <= pc_in;
                             if flush = '0' then
                                 instr_next <= instr;
-                                --pc_out <= pc_in;
                             else
                                 instr_next <= (others => '0');
-                                --pc_out <= (others => '0');
                             end if;
                         end if;
 		end if;

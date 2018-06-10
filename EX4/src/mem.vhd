@@ -121,6 +121,7 @@ begin -- rtl
                     int_reg <= (MEM_NOP, JMP_NOP, (others => '0'), '0', '0');
                     memu_op <= MEM_NOP;
                 end if;
+                pt_reg.pc <= pt_reg_next.pc; --dont flush pc
             else --ensure that no memory operation is asserted on stall
                 memu_op.memread <= '0'; 
                 memu_op.memwrite <= '0';
