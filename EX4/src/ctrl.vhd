@@ -10,6 +10,7 @@ entity ctrl is
 	port (
             clk : in std_logic;
             reset : in std_logic;
+				stall : in std_logic;
             cop_op : in cop0_op_type; --from decode
             wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
 	    pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
@@ -43,28 +44,46 @@ architecture rtl of ctrl is
 
     alias exc_next : std_logic_vector(3 downto 0) is cop_reg_next.cause(5 downto 2);
     alias pen_next : std_logic_vector(2 downto 0) is cop_reg_next.cause(12 downto 10);
+	 alias pen : std_logic_vector(2 downto 0) is cop_reg.cause(12 downto 10);
     alias B_next : std_logic is cop_reg_next.cause(31);
     alias I : std_logic is cop_reg.status(0);
     alias I_next : std_logic is cop_reg_next.status(0);
 
     signal cop_op_reg : cop0_op_type;
     signal bds_reg0, bds_reg1 : std_logic;
-
+	 signal intr_reg : std_logic_vector(INTR_COUNT-1 downto 0);
+	 signal intr_pend, pcsrc_in_reg  : std_logic;
+	 signal intr_pend_next : std_logic;
+	 signal pc_branch_reg : std_logic_vector(PC_WIDTH-1 downto 0);
 begin  -- rtl
 
     sync : process(all)
     begin
 
         if reset = '0' then
-            cop_reg <= ((0 => '1', others => '0'), (others => '0'), (others => '0'), (others => '0'));
-	    cop_op_reg <= COP0_NOP;
-	    bds_reg0 <= '0';
-	    bds_reg1 <= '0';
+				 cop_reg <= ((0 => '1', others => '0'), (others => '0'), (others => '0'), (others => '0'));
+				 cop_op_reg <= COP0_NOP;
+				 bds_reg0 <= '0';
+				 bds_reg1 <= '0';
+				 intr_reg <= (others => '0');
+				 intr_pend <= '0';
+				 pcsrc_in_reg <= '0';
+				 pc_branch_reg <= (others => '0');
         elsif rising_edge(clk) then
-            cop_reg <= cop_reg_next;
-            cop_op_reg <= cop_op;
-	    bds_reg0 <= bds;
-            bds_reg1 <= bds_reg0;
+				if stall = '0' then
+					cop_reg <= cop_reg_next;
+					cop_op_reg <= cop_op;
+					bds_reg0 <= bds;
+					bds_reg1 <= bds_reg0;
+					pcsrc_in_reg <= pcsrc_in;
+				 pc_branch_reg <= pc_branch;
+				end if;
+				
+				if intr_pend = '0' then
+					intr_reg <= intr;
+				end if;
+				intr_pend <= intr_pend_next;
+				
         end if;
 
     end process;
@@ -84,11 +103,25 @@ begin  -- rtl
         flush_mem <= '0';
         
         cop_reg_next <= cop_reg;	
+		  
+			intr_pend_next <= '0';
+			
+		   if intr /= "000" then
+				intr_pend_next <= '1';
+			end if;
 	    
         if exc_ovf = '1' then --ALU ovf detected
             exc_next <= "1100";
-            cop_reg_next.epc <= (PC_WIDTH-1 downto 0 => pc_in_mem, others => '0');
-            cop_reg_next.npc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
+				cop_reg_next.epc <= (others => '0');
+				cop_reg_next.npc <= (others => '0');
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;
+				
+            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+				
+				if pcsrc_in = '1' then
+					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
+				end if;
+				
             B_next <= bds_reg1; --branch delay slot
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
@@ -96,20 +129,42 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
-        elsif intr /= "000" and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
+				
+        elsif (intr_reg /= "000" or pen /= "000") and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
-            pen_next <= intr;
-            cop_reg_next.epc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
-            cop_reg_next.npc <= (PC_WIDTH-1 downto 0 => pc_in_exec, others => '0');
-	    if bds_reg0 = '1' then --interrupted instr in bds
-            	B_next <= '1';
-                flush_mem <= '1'; --flush branch instruction
-	    end if;
+
+				pen_next <= intr_reg or pen;
+
+				cop_reg_next.epc <= (others => '0');
+				cop_reg_next.npc <= (others => '0');
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+				
+				if bds_reg0 = '1' then
+					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;
+					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_mem;
+				end if;
+				
+				flush_decode <= '1';
+            flush_exec <= '1';
+				flush_mem <= bds_reg0; --flush branch instruction
+				
+				if pcsrc_in = '1' then
+					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
+					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch;
+				end if;
+				if pcsrc_in_reg = '1' then
+					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
+					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
+				end if;
+				
+				B_next <= bds_reg0;
+				 
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
-            flush_decode <= '1';
-            flush_exec <= '1';
+				intr_pend_next <= '0';
+				
         else 
             case cop_op_reg.addr is --register io multiplex
                 when "01100" =>
