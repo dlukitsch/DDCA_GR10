@@ -33,6 +33,7 @@ architecture rtl of pipeline is
 	    port (
 		clk : in std_logic;
                 reset : in std_logic;
+					stall : in std_logic;
                 cop_op : in cop0_op_type; --from decode
                 wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
                 pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
@@ -226,6 +227,7 @@ begin  -- rtl
 	port map (
 		clk => clk,
 		reset => reset_sync,
+		stall => mem_in.busy,
 		cop_op => cop0_op_decode,
 		wrdata => cop0_wrdata,
 		pc_in_dec => pc_out_decode,
