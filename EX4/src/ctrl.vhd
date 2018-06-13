@@ -61,29 +61,29 @@ begin  -- rtl
     begin
 
         if reset = '0' then
-				 cop_reg <= ((0 => '1', others => '0'), (others => '0'), (others => '0'), (others => '0'));
-				 cop_op_reg <= COP0_NOP;
-				 bds_reg0 <= '0';
-				 bds_reg1 <= '0';
-				 intr_reg <= (others => '0');
-				 intr_pend <= '0';
-				 pcsrc_in_reg <= '0';
-				 pc_branch_reg <= (others => '0');
+             cop_reg <= ((0 => '1', others => '0'), (others => '0'), (others => '0'), (others => '0'));
+             cop_op_reg <= COP0_NOP;
+             bds_reg0 <= '0';
+             bds_reg1 <= '0';
+             intr_reg <= (others => '0');
+             intr_pend <= '0';
+             pcsrc_in_reg <= '0';
+             pc_branch_reg <= (others => '0');
         elsif rising_edge(clk) then
-				if stall = '0' then
-					cop_reg <= cop_reg_next;
-					cop_op_reg <= cop_op;
-					bds_reg0 <= bds;
-					bds_reg1 <= bds_reg0;
-					pcsrc_in_reg <= pcsrc_in;
-				 pc_branch_reg <= pc_branch;
-				end if;
-				
-				if intr_pend = '0' then
-					intr_reg <= intr;
-				end if;
-				intr_pend <= intr_pend_next;
-				
+            if stall = '0' then
+                    cop_reg <= cop_reg_next;
+                    cop_op_reg <= cop_op;
+                    bds_reg0 <= bds;
+                    bds_reg1 <= bds_reg0;
+                    pcsrc_in_reg <= pcsrc_in;
+             pc_branch_reg <= pc_branch;
+            end if;
+           
+            --don't drop interrupts on stall 
+            if intr_pend = '0' then
+                    intr_reg <= intr;
+            end if;
+            intr_pend <= intr_pend_next;        
         end if;
 
     end process;
@@ -104,23 +104,26 @@ begin  -- rtl
         
         cop_reg_next <= cop_reg;	
 		  
-			intr_pend_next <= '0';
-			
-		   if intr /= "000" then
-				intr_pend_next <= '1';
-			end if;
-	    
+        intr_pend_next <= '0';
+        
+        --set pend flag so interrupts are not dropped on stall    
+        if intr /= "000" then
+            intr_pend_next <= '1';
+        end if;
+	    	
+        --register new interrupts and don't discard pending interrupts
+        pen_next <= intr_reg or pen;
+
         if exc_ovf = '1' then --ALU ovf detected
             exc_next <= "1100";
-				cop_reg_next.epc <= (others => '0');
-				cop_reg_next.npc <= (others => '0');
-            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;
-				
+            cop_reg_next.epc <= (others => '0');
+            cop_reg_next.npc <= (others => '0');
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;				
             cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
 				
-				if pcsrc_in = '1' then
-					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
-				end if;
+            if pcsrc_in = '1' then
+                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
+            end if;
 				
             B_next <= bds_reg1; --branch delay slot
             I_next <= '0'; --disable interrupts
@@ -129,43 +132,40 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
-				
+	
         elsif (intr_reg /= "000" or pen /= "000") and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
 
-				pen_next <= intr_reg or pen;
-
-				cop_reg_next.epc <= (others => '0');
-				cop_reg_next.npc <= (others => '0');
+            cop_reg_next.epc <= (others => '0');
+            cop_reg_next.npc <= (others => '0');
             cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_exec;
             cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
-				
-				if bds_reg0 = '1' then
-					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;
-					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_mem;
-				end if;
-				
-				flush_decode <= '1';
-            flush_exec <= '1';
-				flush_mem <= bds_reg0; --flush branch instruction
-				
-				if pcsrc_in = '1' then
-					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
-					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch;
-				end if;
-				if pcsrc_in_reg = '1' then
-					cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
-					cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
-				end if;
-				
-				B_next <= bds_reg0;
-				 
+
+            --take care of bds				
+            if bds_reg0 = '1' then
+                cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;
+                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_mem;
+            end if;
+            --handle interrupts right after branches
+            if pcsrc_in = '1' then
+                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
+                cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch;
+            end if;
+            if pcsrc_in_reg = '1' then
+                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
+                cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
+            end if;
+            
+            B_next <= bds_reg0;				 
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
-				intr_pend_next <= '0';
-				
-        else 
+            intr_pend_next <= '0';			
+            flush_decode <= '1';
+            flush_exec <= '1';
+            flush_mem <= bds_reg0; --flush branch instruction
+
+        else --take care of cop0 instrutions 
             case cop_op_reg.addr is --register io multiplex
                 when "01100" =>
                     if cop_op_reg.wr = '1' then
