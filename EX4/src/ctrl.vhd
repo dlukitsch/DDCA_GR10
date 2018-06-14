@@ -54,11 +54,11 @@ architecture rtl of ctrl is
     alias I_next : std_logic is cop_reg_next.status(0);
 
     signal cop_op_reg : cop0_op_type;
-    signal bds_reg0, bds_reg1 : std_logic;
+    signal bds_reg0, bds_reg1, bds_reg2, bds_reg3 : std_logic;
 	 signal intr_reg : std_logic_vector(INTR_COUNT-1 downto 0);
 	 signal intr_pend, pcsrc_in_reg  : std_logic;
-	 signal intr_pend_next, dec_ovf_reg : std_logic;
-	 signal pc_branch_reg, pc_fetch_reg, pc_mem_reg : std_logic_vector(PC_WIDTH-1 downto 0);
+	 signal intr_pend_next, dec_ovf_reg, load_ovf_reg, store_ovf_reg : std_logic;
+	 signal pc_branch_reg, pc_fetch_reg, pc_mem_reg, pc_mem_reg_old : std_logic_vector(PC_WIDTH-1 downto 0);
 begin  -- rtl
 
     sync : process(all)
@@ -69,6 +69,8 @@ begin  -- rtl
              cop_op_reg <= COP0_NOP;
              bds_reg0 <= '0';
              bds_reg1 <= '0';
+			 bds_reg2 <= '0';
+			 bds_reg3 <= '0';
              intr_reg <= (others => '0');
              intr_pend <= '0';
              pcsrc_in_reg <= '0';
@@ -76,17 +78,27 @@ begin  -- rtl
              pc_branch_reg <= (others => '0');
 			 pc_fetch_reg <= (others => '0');
 			 pc_mem_reg <= (others => '0');
+			 pc_mem_reg_old <= (others => '0');
+			 load_ovf_reg <= '0';
+			 store_ovf_reg <= '0';
         elsif rising_edge(clk) then
             if stall = '0' then
                     cop_reg <= cop_reg_next;
                     cop_op_reg <= cop_op;
+					
                     bds_reg0 <= bds;
                     bds_reg1 <= bds_reg0;
+					bds_reg2 <= bds_reg1;
+					bds_reg3 <= bds_reg2;
+					
                     pcsrc_in_reg <= pcsrc_in;
 					pc_branch_reg <= pc_branch;
 					pc_fetch_reg <= pc_in_fetch;
 					dec_ovf_reg <= dec_ovf;
+					pc_mem_reg_old <= pc_mem_reg;
 					pc_mem_reg <= pc_in_mem;
+					load_ovf_reg <= load_ovf;
+					store_ovf_reg <= store_ovf;
             end if;
            
             --don't drop interrupts on stall 
@@ -159,8 +171,8 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
-		elsif store_ovf = '1' or load_ovf = '1' then
-			if store_ovf = '1' then
+		elsif store_ovf_reg = '1' or load_ovf_reg = '1' then
+			if store_ovf_reg = '1' then
 				exc_next <= "0101";
 			else
 				exc_next <= "0100";
@@ -168,12 +180,14 @@ begin  -- rtl
 			
 			cop_reg_next.epc <= (others => '0');
             cop_reg_next.npc <= (others => '0');
-            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_mem_reg;				
-            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_mem;
-			if pcsrc_in = '1' then
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_mem_reg_old;				
+            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_mem_reg;
+			
+			if pcsrc_in_reg = '1' then --abfrage stimmt noch nicht
                 cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
 			end if;
-			B_next <= bds_reg0; --branch delay slot
+			
+			B_next <= bds_reg3; --branch delay slot
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
