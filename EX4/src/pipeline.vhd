@@ -33,16 +33,20 @@ architecture rtl of pipeline is
 	    port (
 		clk : in std_logic;
                 reset : in std_logic;
-					stall : in std_logic;
+				stall : in std_logic;
                 cop_op : in cop0_op_type; --from decode
                 wrdata : in std_logic_vector(DATA_WIDTH-1 downto 0); --from exec
-                pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
+                pc_in_fetch : in std_logic_vector(PC_WIDTH-1 downto 0);
+				pc_in_dec : in std_logic_vector(PC_WIDTH-1 downto 0); --from decode pc_out
                 pc_in_exec : in std_logic_vector(PC_WIDTH-1 downto 0); --from exec pc_out
                 pc_in_mem : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem pc_out
                 bds : in std_logic; --from decode, exec_op.branch or exec_op.link
                 pcsrc_in : in std_logic; --from mem
                 pc_branch : in std_logic_vector(PC_WIDTH-1 downto 0); --from mem new_pc
                 exc_ovf : in std_logic; --from exec
+				dec_ovf : in std_logic;
+				 load_ovf : in std_logic;
+				store_ovf : in std_logic;
                 intr : in std_logic_vector(INTR_COUNT-1 downto 0);
                 rddata : out std_logic_vector(DATA_WIDTH-1 downto 0); --to exec cop_rddata
                 pcsrc_out : out std_logic;
@@ -198,7 +202,7 @@ architecture rtl of pipeline is
 	signal mem_pcsrc : std_logic;
 	signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
-	signal bds : std_logic;
+	signal bds, dec_ovf, load_ovf, store_ovf : std_logic;
 
 begin  -- rtl
 
@@ -230,17 +234,21 @@ begin  -- rtl
 		stall => mem_in.busy,
 		cop_op => cop0_op_decode,
 		wrdata => cop0_wrdata,
+		pc_in_fetch => pc_out_fetch,
 		pc_in_dec => pc_out_decode,
 		pc_in_exec => pc_out_exec,
 		pc_in_mem => mem_pc,
 		bds => bds,
 		pcsrc_in => mem_pcsrc,
-                pc_branch => branch_pc,
+        pc_branch => branch_pc,
 		exc_ovf => exc_ovf_exec,
+		dec_ovf => dec_ovf,
+		load_ovf => load_ovf,
+		store_ovf => store_ovf,
 		intr => intr,
 		rddata => cop0_rddata_exec,
-      		pcsrc_out => cop_pcsrc,
-      		pc_out => cop_pc,
+      	pcsrc_out => cop_pcsrc,
+      	pc_out => cop_pc,
 		flush_decode => flush_decode,
 		flush_exec => flush_exec,
 		flush_mem => flush_mem
@@ -274,7 +282,7 @@ begin  -- rtl
 		jmp_op => jmp_op_decode,
 		mem_op => mem_op_decode,
 		wb_op => wb_op_decode,
-		exc_dec => open -- this pin has to be implemented at exercise 4
+		exc_dec => dec_ovf -- this pin has to be implemented at exercise 4
 	);
 	
 	exec_inst : exec
@@ -334,8 +342,8 @@ begin  -- rtl
 		wbop_out => wbop_out_mem,
 		mem_out => mem_out,
 		mem_data => mem_in.rddata,
-		exc_load => open, -- following pins have to be implemented at exercise 4
-		exc_store => open
+		exc_load => load_ovf, -- following pins have to be implemented at exercise 4
+		exc_store => store_ovf
 	);
 	
 	wb_inst : wb
