@@ -1,4 +1,4 @@
-PROJECT=fwd
+PROJECT=testfwd
 
 PREFIX=/usr/mips
 
