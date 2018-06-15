@@ -53,7 +53,8 @@ architecture rtl of pipeline is
                 pc_out : out std_logic_vector(PC_WIDTH-1 downto 0);
                 flush_decode : out std_logic;
                 flush_exec : out std_logic;
-                flush_mem : out std_logic
+                flush_mem : out std_logic;
+				flush_wb : out std_logic
 	    );	
 	end component;
 
@@ -194,10 +195,10 @@ architecture rtl of pipeline is
 	signal forwardA, forwardB : fwd_type;
 	
 	signal cop0_op_decode : cop0_op_type;
-	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem : std_logic;
+	signal exc_ovf_exec, flush_decode, flush_exec, flush_mem, flush_wb : std_logic;
 	signal cop0_rddata_exec : std_logic_vector(DATA_WIDTH-1 downto 0);
 
-        signal branch_pc : std_logic_vector(PC_WIDTH-1 downto 0);
+    signal branch_pc : std_logic_vector(PC_WIDTH-1 downto 0);
 
 	signal mem_pcsrc : std_logic;
 	signal mem_pc : std_logic_vector(PC_WIDTH-1 downto 0);
@@ -251,7 +252,8 @@ begin  -- rtl
       	pc_out => cop_pc,
 		flush_decode => flush_decode,
 		flush_exec => flush_exec,
-		flush_mem => flush_mem
+		flush_mem => flush_mem,
+		flush_wb => flush_wb
 	);
 	
 	fetch_inst : fetch
@@ -278,11 +280,11 @@ begin  -- rtl
 		regwrite => regwrite_decode,
 		pc_out => pc_out_decode,
 		exec_op => exec_op_decode,
-		cop0_op => cop0_op_decode, -- this pin has to be implemented at exercise 4
+		cop0_op => cop0_op_decode,
 		jmp_op => jmp_op_decode,
 		mem_op => mem_op_decode,
 		wb_op => wb_op_decode,
-		exc_dec => dec_ovf -- this pin has to be implemented at exercise 4
+		exc_dec => dec_ovf
 	);
 	
 	exec_inst : exec
@@ -322,7 +324,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => flush_mem, -- this pin has to be implemented at exercise 4
+		flush => flush_mem,
 		mem_op => memop_out_exec,
 		jmp_op => jmpop_out_exec,
 		pc_in => pc_out_exec,
@@ -332,7 +334,7 @@ begin  -- rtl
 		zero => zero_exec,
 		neg => neg_exec,
 		new_pc_in => new_pc_exec,
-		pc_out => mem_pc, -- this pin has to be implemented at exercise 4
+		pc_out => mem_pc,
 		pcsrc => mem_pcsrc,
 		rd_out => rd_out_mem,
 		aluresult_out => aluresult_out_mem,
@@ -342,7 +344,7 @@ begin  -- rtl
 		wbop_out => wbop_out_mem,
 		mem_out => mem_out,
 		mem_data => mem_in.rddata,
-		exc_load => load_ovf, -- following pins have to be implemented at exercise 4
+		exc_load => load_ovf,
 		exc_store => store_ovf
 	);
 	
@@ -351,7 +353,7 @@ begin  -- rtl
 		clk => clk,
 		reset => reset_sync,
 		stall => mem_in.busy,
-		flush => '0', -- this pin has to be implemented at exercise 4
+		flush => flush_wb,
 		op => wbop_out_mem,
 		rd_in => rd_out_mem,
 		aluresult => aluresult_out_mem,

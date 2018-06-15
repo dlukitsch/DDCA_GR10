@@ -30,7 +30,8 @@ entity ctrl is
             pc_out : out std_logic_vector(PC_WIDTH-1 downto 0); --to fetch
             flush_decode : out std_logic;
             flush_exec : out std_logic;
-            flush_mem : out std_logic
+            flush_mem : out std_logic;
+			flush_wb : out std_logic
         );
 
 end ctrl;
@@ -56,9 +57,9 @@ architecture rtl of ctrl is
     signal cop_op_reg : cop0_op_type;
     signal bds_reg0, bds_reg1, bds_reg2, bds_reg3 : std_logic;
 	 signal intr_reg : std_logic_vector(INTR_COUNT-1 downto 0);
-	 signal intr_pend, pcsrc_in_reg  : std_logic;
+	 signal intr_pend, pcsrc_in_reg0, pcsrc_in_reg1, exc_ovf_reg  : std_logic;
 	 signal intr_pend_next, dec_ovf_reg, load_ovf_reg, store_ovf_reg : std_logic;
-	 signal pc_branch_reg, pc_fetch_reg, pc_mem_reg, pc_mem_reg_old : std_logic_vector(PC_WIDTH-1 downto 0);
+	 signal pc_branch_reg, pc_fetch_reg, pc_mem_reg, pc_mem_reg_old, pc_exec_reg, pc_dec_reg : std_logic_vector(PC_WIDTH-1 downto 0);
 begin  -- rtl
 
     sync : process(all)
@@ -73,12 +74,16 @@ begin  -- rtl
 			 bds_reg3 <= '0';
              intr_reg <= (others => '0');
              intr_pend <= '0';
-             pcsrc_in_reg <= '0';
+             pcsrc_in_reg0 <= '0';
+			 pcsrc_in_reg1 <= '0';
 			 dec_ovf_reg <= '0';
+			 exc_ovf_reg <= '0';
              pc_branch_reg <= (others => '0');
 			 pc_fetch_reg <= (others => '0');
 			 pc_mem_reg <= (others => '0');
 			 pc_mem_reg_old <= (others => '0');
+			 pc_exec_reg <= (others => '0');
+			 pc_dec_reg <= (others => '0');
 			 load_ovf_reg <= '0';
 			 store_ovf_reg <= '0';
         elsif rising_edge(clk) then
@@ -91,14 +96,21 @@ begin  -- rtl
 					bds_reg2 <= bds_reg1;
 					bds_reg3 <= bds_reg2;
 					
-                    pcsrc_in_reg <= pcsrc_in;
+                    pcsrc_in_reg0 <= pcsrc_in;
+					pcsrc_in_reg1 <= pcsrc_in_reg0;
 					pc_branch_reg <= pc_branch;
 					pc_fetch_reg <= pc_in_fetch;
-					dec_ovf_reg <= dec_ovf;
 					pc_mem_reg_old <= pc_mem_reg;
 					pc_mem_reg <= pc_in_mem;
 					load_ovf_reg <= load_ovf;
 					store_ovf_reg <= store_ovf;
+					exc_ovf_reg <= exc_ovf;
+					pc_exec_reg <= pc_in_exec;
+					pc_dec_reg <= pc_in_dec;
+					
+					if dec_ovf = '1' nand pcsrc_in = '1' then -- stall decode-flag, so exception is not processed too early
+						dec_ovf_reg <= dec_ovf;
+					end if;
             end if;
            
             --don't drop interrupts on stall 
@@ -123,6 +135,7 @@ begin  -- rtl
         flush_decode <= pcsrc_in;
         flush_exec <= pcsrc_in;
         flush_mem <= '0';
+		flush_wb <= '0';
         
         cop_reg_next <= cop_reg;	
 		  
@@ -140,8 +153,8 @@ begin  -- rtl
 			exc_next <= "1010";
 			cop_reg_next.epc <= (others => '0');
             cop_reg_next.npc <= (others => '0');
-            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;				
-            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_exec_reg;				
+            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_dec_reg;
 			if pcsrc_in = '1' then
                 cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_fetch_reg;
 			end if;
@@ -153,24 +166,25 @@ begin  -- rtl
             flush_exec <= '1';
             flush_mem <= '1';
 			
-        elsif exc_ovf = '1' then --ALU ovf detected
+        elsif exc_ovf_reg = '1' then --ALU ovf detected --changed to regitered values
             exc_next <= "1100";
             cop_reg_next.epc <= (others => '0');
             cop_reg_next.npc <= (others => '0');
-            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_in_mem;				
-            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
+            cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_mem_reg;				
+            cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_exec_reg;
 				
-            if pcsrc_in = '1' then
-                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
+            if pcsrc_in_reg0 = '1' then
+                cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
             end if;
 				
-            B_next <= bds_reg1; --branch delay slot
+            B_next <= bds_reg2; --branch delay slot
             I_next <= '0'; --disable interrupts
             pcsrc_out <= '1';
             pc_out <= EXCEPTION_PC;
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
+			
 		elsif store_ovf_reg = '1' or load_ovf_reg = '1' then
 			if store_ovf_reg = '1' then
 				exc_next <= "0101";
@@ -183,7 +197,7 @@ begin  -- rtl
             cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_mem_reg_old;				
             cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_mem_reg;
 			
-			if pcsrc_in_reg = '1' then --abfrage stimmt noch nicht
+			if pcsrc_in_reg1 = '1' then
                 cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_in_exec;
 			end if;
 			
@@ -194,6 +208,7 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
+			--flush_wb <= '1'; -- not sure about this but lets try
 			
         elsif (intr_reg /= "000" or pen /= "000") and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
@@ -213,7 +228,7 @@ begin  -- rtl
                 cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch;
                 cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch;
             end if;
-            if pcsrc_in_reg = '1' then
+            if pcsrc_in_reg0 = '1' then
                 cop_reg_next.npc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
                 cop_reg_next.epc(PC_WIDTH-1 downto 0) <= pc_branch_reg;
             end if;
