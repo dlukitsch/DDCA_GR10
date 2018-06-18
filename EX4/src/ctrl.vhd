@@ -58,6 +58,7 @@ architecture rtl of ctrl is
     signal bds_reg0, bds_reg1, bds_reg2, bds_reg3 : std_logic;
 	 signal intr_reg : std_logic_vector(INTR_COUNT-1 downto 0);
 	 signal intr_pend, pcsrc_in_reg0, pcsrc_in_reg1, exc_ovf_reg  : std_logic;
+	 signal do_dec_exc, do_mem_exc : std_logic := '1';
 	 signal intr_pend_next, dec_ovf_reg, load_ovf_reg, store_ovf_reg : std_logic;
 	 signal pc_branch_reg, pc_fetch_reg, pc_mem_reg, pc_mem_reg_old, pc_exec_reg, pc_dec_reg : std_logic_vector(PC_WIDTH-1 downto 0);
 begin  -- rtl
@@ -86,6 +87,8 @@ begin  -- rtl
 			 pc_dec_reg <= (others => '0');
 			 load_ovf_reg <= '0';
 			 store_ovf_reg <= '0';
+			 do_dec_exc <= '1';
+			 do_mem_exc <= '1';
         elsif rising_edge(clk) then
             if stall = '0' then
                     cop_reg <= cop_reg_next;
@@ -106,13 +109,25 @@ begin  -- rtl
 					store_ovf_reg <= store_ovf;
 					exc_ovf_reg <= exc_ovf;
 					pc_exec_reg <= pc_in_exec;
-					pc_dec_reg <= pc_in_dec;
-					
-					if dec_ovf = '1' nand pcsrc_in = '1' then -- stall decode-flag, so exception is not processed too early
-						dec_ovf_reg <= dec_ovf;
-					end if;
+					pc_dec_reg <= pc_in_dec;	
             end if;
            
+		   if (load_ovf = '1' and store_ovf_reg = '1') or (store_ovf = '1' and load_ovf_reg = '1') or (load_ovf = '1' and load_ovf_reg = '1') or (store_ovf = '1' and store_ovf_reg = '1') then --handle consecutive mem-exceptions
+			do_mem_exc <= '0';
+		   else
+			do_mem_exc <= '1';
+		   end if;
+
+		    if dec_ovf = '1' and dec_ovf_reg = '1' then --handle consecutive dec-exceptions
+				do_dec_exc <= '0';
+			else
+				do_dec_exc <= '1';
+			end if;
+		    if dec_ovf = '1' nand pcsrc_in = '1' then -- stall decode-flag, so exception is not processed too early
+				dec_ovf_reg <= dec_ovf;
+			end if;
+			
+		   
             --don't drop interrupts on stall 
             if intr_pend = '0' then
                     intr_reg <= intr;
@@ -149,7 +164,7 @@ begin  -- rtl
         --register new interrupts and don't discard pending interrupts
         pen_next <= intr_reg or pen;
 		
-		if dec_ovf_reg = '1' then
+		if dec_ovf_reg = '1' and do_dec_exc = '1' then
 			exc_next <= "1010";
 			cop_reg_next.epc <= (others => '0');
             cop_reg_next.npc <= (others => '0');
@@ -184,8 +199,9 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
+			flush_wb <= '1';
 			
-		elsif store_ovf_reg = '1' or load_ovf_reg = '1' then
+		elsif (store_ovf_reg = '1' or load_ovf_reg = '1') and do_mem_exc = '1' then
 			if store_ovf_reg = '1' then
 				exc_next <= "0101";
 			else
@@ -208,7 +224,7 @@ begin  -- rtl
             flush_decode <= '1';
             flush_exec <= '1';
             flush_mem <= '1';
-			--flush_wb <= '1'; -- not sure about this but lets try
+			flush_wb <= '1';
 			
         elsif (intr_reg /= "000" or pen /= "000") and I = '1' then --interrupt detected, interrupt pipeline in decode stage, pc in exec points to instr in decode
             exc_next <= "0000";
